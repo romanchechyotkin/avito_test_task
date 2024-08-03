@@ -6,7 +6,7 @@ postgresql:
   password:
   host:
   port:
-  database:
+  database: estate_service
   ssl_mode:
   auto_create:
 auth_api:

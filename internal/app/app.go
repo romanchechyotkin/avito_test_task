@@ -1,20 +1,22 @@
 package app
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1"
-	"github.com/romanchechyotkin/avito_test_task/internal/service"
-	"github.com/romanchechyotkin/avito_test_task/pkg/httpsrv"
-	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/config"
+	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo"
+	"github.com/romanchechyotkin/avito_test_task/internal/service"
+	"github.com/romanchechyotkin/avito_test_task/pkg/httpsrv"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 	"github.com/romanchechyotkin/avito_test_task/pkg/migrations"
+	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"
 	"github.com/romanchechyotkin/avito_test_task/schema"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Run() {
@@ -37,10 +39,15 @@ func Run() {
 		log.Error("failed to init postgtresql", logger.Error(err))
 		os.Exit(1)
 	}
-	postgres.Close()
+
+	log.Debug("repositories init")
+	repositories := repo.NewRepositories(log, postgres)
 
 	log.Debug("services init")
-	services := service.NewServices()
+	services := service.NewServices(&service.Dependencies{
+		Log:   log,
+		Repos: repositories,
+	})
 
 	router := gin.Default()
 	v1.NewRouter(log, router, services)
