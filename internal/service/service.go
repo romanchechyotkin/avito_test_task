@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
 )
 
@@ -34,7 +35,7 @@ type HouseCreateInput struct {
 }
 
 type House interface {
-	CreateHouse(ctx context.Context, input *HouseCreateInput)
+	CreateHouse(ctx context.Context, input *HouseCreateInput) (*entity.House, error)
 }
 
 type Dependencies struct {

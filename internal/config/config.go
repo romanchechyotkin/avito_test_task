@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 
@@ -14,6 +15,7 @@ type Config struct {
 	HTTP       `yaml:"http"`
 	Postgresql `yaml:"postgresql"`
 	AuthAPI    `yaml:"auth_api"`
+	JWT        `yaml:"jwt"`
 }
 
 type HTTP struct {
@@ -34,6 +36,11 @@ type Postgresql struct {
 
 type AuthAPI struct {
 	URL string `yaml:"url" env:"AUTH_API"`
+}
+
+type JWT struct {
+	SignKey  string        `yaml:"sign_key" env:"JWT_KEY"`
+	TokenTTL time.Duration `yaml:"token_ttl" env:"JWT_TTL"`
 }
 
 func New(log *slog.Logger) (*Config, error) {

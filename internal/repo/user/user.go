@@ -33,8 +33,7 @@ func (r *Repo) CreateUser(ctx context.Context, user *entity.User) (string, error
 	r.log.Debug("create user query", slog.String("query", q))
 
 	var id string
-	err := r.Pool.QueryRow(ctx, q, user.Email, user.Password, user.UserType).Scan(&id)
-	if err != nil {
+	if err := r.Pool.QueryRow(ctx, q, user.Email, user.Password, user.UserType).Scan(&id); err != nil {
 		var pgErr *pgconn.PgError
 		if ok := errors.As(err, &pgErr); ok {
 			if pgErr.Code == UniqueConstraintCode {
@@ -75,7 +74,7 @@ func (r *Repo) GetByEmail(ctx context.Context, email string) (*entity.User, erro
 func (r *Repo) GetById(ctx context.Context, id int) (*entity.User, error) {
 	q := "SELECT id, email, password, user_type, created_at FROM users WHERE id = $1"
 
-	r.log.Debug("get user by email query", slog.String("query", q))
+	r.log.Debug("get user by id query", slog.String("query", q))
 
 	var user entity.User
 	err := r.Pool.QueryRow(ctx, q, id).Scan(

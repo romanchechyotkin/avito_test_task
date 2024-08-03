@@ -98,15 +98,14 @@ func (s *AuthService) GenerateToken(ctx context.Context, input *AuthGenerateToke
 	return tokenString, nil
 }
 
-func (s *AuthService) ParseToken(accesstoken string) (*TokenClaims, error) {
-	token, err := jwt.ParseWithClaims(accesstoken, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+func (s *AuthService) ParseToken(accessToken string) (*TokenClaims, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
 		return []byte(s.signKey), nil
 	})
-
 	if err != nil {
 		return nil, ErrParseToken
 	}
