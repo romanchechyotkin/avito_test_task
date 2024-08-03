@@ -8,8 +8,6 @@ import (
 	"time"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/config"
-
-	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -23,18 +21,15 @@ type Server struct {
 	cfg    *config.Config
 	notify chan error
 
-	router *gin.Engine
-	base   *http.Server
+	base *http.Server
 }
 
-func New(log *slog.Logger, cfg *config.Config) (*Server, error) {
-	router := gin.Default()
+func New(log *slog.Logger, cfg *config.Config, router http.Handler) (*Server, error) {
 
 	srv := &Server{
 		log:    log,
 		cfg:    cfg,
 		notify: make(chan error),
-		router: router,
 		base: &http.Server{
 			Addr:         fmt.Sprintf("%s:%s", cfg.HTTP.Host, cfg.HTTP.Port),
 			Handler:      router,
@@ -64,14 +59,4 @@ func (srv *Server) Shutdown() error {
 	defer cancel()
 
 	return srv.base.Shutdown(ctx)
-}
-
-func (srv *Server) RegisterRoutes() {
-	srv.router.GET("/status", func(c *gin.Context) {
-		c.String(http.StatusOK, "sad")
-	})
-
-	authGroup := srv.router.Group("/auth")
-	authGroup.POST("/registration", srv.Registration)
-	authGroup.POST("/login", srv.Login)
 }

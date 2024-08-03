@@ -1,6 +1,9 @@
 package app
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1"
+	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/pkg/httpsrv"
 	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"
 	"log/slog"
@@ -28,6 +31,7 @@ func Run() {
 	log.Debug("migrations starting")
 	migrations.Migrate(log, &schema.DB, "postgres://postgres:5432@localhost:5432/estate_service?sslmode=disable")
 
+	log.Debug("postgresql starting")
 	postgres, err := postgresql.New(log, &cfg.Postgresql)
 	if err != nil {
 		log.Error("failed to init postgtresql", logger.Error(err))
@@ -35,9 +39,14 @@ func Run() {
 	}
 	postgres.Close()
 
+	log.Debug("services init")
+	services := service.NewServices()
+
+	router := gin.Default()
+	v1.NewRouter(log, router, services)
+
 	log.Debug("server starting")
-	server, err := httpsrv.New(log, cfg)
-	server.RegisterRoutes()
+	server, err := httpsrv.New(log, cfg, router)
 
 	// Waiting signal
 	log.Info("Configuring graceful shutdown...")
