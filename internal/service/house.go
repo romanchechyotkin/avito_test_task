@@ -27,6 +27,7 @@ func (s *HouseService) CreateHouse(ctx context.Context, input *HouseCreateInput)
 		Address: input.Address,
 		Year:    input.Year,
 		Developer: sql.NullString{
+			Valid:  len(input.Developer) > 0,
 			String: input.Developer,
 		},
 	})
