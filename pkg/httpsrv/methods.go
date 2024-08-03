@@ -1,9 +1,9 @@
 package httpsrv
 
 import (
+	"github.com/romanchechyotkin/avito_test_task/pkg/httpsrv/request"
 	"net/http"
 
-	"github.com/romanchechyotkin/avito_test_task/internal/httpsrv/request"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 
 	"github.com/gin-gonic/gin"

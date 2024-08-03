@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/romanchechyotkin/avito_test_task/pkg/httpsrv"
 	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"
 	"log/slog"
 	"os"
@@ -8,7 +9,6 @@ import (
 	"syscall"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/config"
-	"github.com/romanchechyotkin/avito_test_task/internal/httpsrv"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 	"github.com/romanchechyotkin/avito_test_task/pkg/migrations"
 	"github.com/romanchechyotkin/avito_test_task/schema"

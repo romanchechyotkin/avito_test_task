@@ -1,6 +1,7 @@
 package postgresql
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"time"
@@ -10,11 +11,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
-)
-
-import (
-	"context"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
