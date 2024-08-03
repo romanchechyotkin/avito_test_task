@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/request"
+	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/response"
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 
@@ -65,7 +66,9 @@ func (r *authRoutes) Registration(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, userID)
+	c.JSON(http.StatusCreated, response.Registration{
+		UserID: userID,
+	})
 }
 
 func (r *authRoutes) Login(c *gin.Context) {
@@ -111,5 +114,7 @@ func (r *authRoutes) Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, token)
+	c.JSON(http.StatusCreated, response.Login{
+		Token: token,
+	})
 }
