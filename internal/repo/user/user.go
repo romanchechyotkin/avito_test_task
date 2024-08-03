@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
 	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"
 
 	"github.com/jackc/pgx/v5"
@@ -37,7 +38,7 @@ func (r *Repo) CreateUser(ctx context.Context, user *entity.User) (int, error) {
 		var pgErr *pgconn.PgError
 		if ok := errors.As(err, &pgErr); ok {
 			if pgErr.Code == UniqueConstraintCode {
-				return 0, errors.New("already exists")
+				return 0, repoerrors.ErrUserExists
 			}
 		}
 
@@ -62,7 +63,7 @@ func (r *Repo) GetByEmail(ctx context.Context, email string) (*entity.User, erro
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, errors.New("not found")
+			return nil, repoerrors.ErrNotFound
 		}
 
 		return nil, err
@@ -86,7 +87,7 @@ func (r *Repo) GetById(ctx context.Context, id int) (*entity.User, error) {
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, errors.New("not found")
+			return nil, repoerrors.ErrNotFound
 		}
 
 		return nil, err
