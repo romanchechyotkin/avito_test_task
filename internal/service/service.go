@@ -31,8 +31,6 @@ type Dependencies struct {
 	Log   *slog.Logger
 	Repos *repo.Repositories
 
-	//Hasher hasher.PasswordHasher
-	//
 	SignKey  string
 	TokenTTL time.Duration
 }

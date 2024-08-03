@@ -13,8 +13,6 @@ type User interface {
 	CreateUser(ctx context.Context, user *entity.User) (int, error)
 	GetByEmail(ctx context.Context, email string) (*entity.User, error)
 	GetById(ctx context.Context, id int) (*entity.User, error)
-
-	//GetUserByUsernameAndPassword(ctx context.Context, username, password string) (entity.User, error)
 }
 
 type Repositories struct {
