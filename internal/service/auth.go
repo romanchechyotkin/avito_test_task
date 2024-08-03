@@ -18,8 +18,8 @@ import (
 
 type TokenClaims struct {
 	jwt.StandardClaims
-	UserID   uint
-	UserType string
+	UserID   string `json:"user_id"`
+	UserType string `json:"user_type"`
 }
 
 type AuthService struct {
@@ -39,10 +39,10 @@ func NewAuthService(log *slog.Logger, userRepo repo.User, signKey string, tokenT
 	}
 }
 
-func (s *AuthService) CreateUser(ctx context.Context, input *AuthCreateUserInput) (int, error) {
+func (s *AuthService) CreateUser(ctx context.Context, input *AuthCreateUserInput) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.MinCost)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	user := &entity.User{
@@ -54,11 +54,11 @@ func (s *AuthService) CreateUser(ctx context.Context, input *AuthCreateUserInput
 	userID, err := s.userRepo.CreateUser(ctx, user)
 	if err != nil {
 		if errors.Is(err, repoerrors.ErrUserExists) {
-			return 0, err
+			return "", err
 		}
 
 		s.log.Error("failed to create user in database", logger.Error(err))
-		return 0, err
+		return "", err
 	}
 
 	return userID, nil

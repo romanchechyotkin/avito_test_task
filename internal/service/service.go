@@ -20,11 +20,21 @@ type AuthGenerateTokenInput struct {
 }
 
 type Auth interface {
-	CreateUser(ctx context.Context, input *AuthCreateUserInput) (int, error)
+	CreateUser(ctx context.Context, input *AuthCreateUserInput) (string, error)
 
 	GenerateToken(ctx context.Context, input *AuthGenerateTokenInput) (string, error)
 
 	ParseToken(accessToken string) (*TokenClaims, error)
+}
+
+type HouseCreateInput struct {
+	Address   string
+	Year      uint
+	Developer string
+}
+
+type House interface {
+	CreateHouse(ctx context.Context, input *HouseCreateInput)
 }
 
 type Dependencies struct {
@@ -36,11 +46,13 @@ type Dependencies struct {
 }
 
 type Services struct {
-	Auth Auth
+	Auth  Auth
+	House House
 }
 
 func NewServices(deps *Dependencies) *Services {
 	return &Services{
-		Auth: NewAuthService(deps.Log, deps.Repos.User, deps.SignKey, deps.TokenTTL),
+		Auth:  NewAuthService(deps.Log, deps.Repos.User, deps.SignKey, deps.TokenTTL),
+		House: NewHouseService(deps.Log, deps.Repos.House),
 	}
 }
