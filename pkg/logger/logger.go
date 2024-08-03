@@ -9,6 +9,7 @@ import (
 const defaultLevel = slog.LevelDebug
 
 // todo refactor => devLogger() prodLogger()
+// todo add source for dev
 func New() *slog.Logger {
 	var handler slog.Handler
 
