@@ -1,0 +1,5 @@
+.idea
+.vscode
+bin
+build
+app_pg_data
