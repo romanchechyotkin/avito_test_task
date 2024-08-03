@@ -2,12 +2,12 @@ package v1
 
 import (
 	"errors"
-	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
 	"log/slog"
 	"net/http"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/request"
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/response"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 
