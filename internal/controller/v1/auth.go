@@ -1,10 +1,12 @@
 package v1
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/request"
+	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/response"
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 
@@ -50,9 +52,69 @@ func (r *authRoutes) Registration(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, req)
+	userID, err := r.authService.CreateUser(c, &service.AuthCreateUserInput{
+		Email:    req.Email,
+		Password: req.Password,
+		UserType: req.UserType,
+	})
+	if err != nil {
+		r.log.Error("failed to create user", logger.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusCreated, response.Registration{
+		UserID: userID,
+	})
 }
 
 func (r *authRoutes) Login(c *gin.Context) {
+	var req request.Login
 
+	if err := c.ShouldBindJSON(&req); err != nil {
+		r.log.Error("failed to read request data", logger.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	// todo custom validator with russian responses
+	if err := validator.New().Struct(req); err != nil {
+		r.log.Error("failed to validate request data", logger.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	token, err := r.authService.GenerateToken(c, &service.AuthGenerateTokenInput{
+		Email:    req.Email,
+		Password: req.Password,
+	})
+	if err != nil {
+		if errors.Is(err, errors.New("wrong password")) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+
+			return
+		}
+
+		r.log.Error("failed to generate user token", logger.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusCreated, response.Login{
+		Token: token,
+	})
 }
