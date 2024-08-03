@@ -2,6 +2,7 @@ package v1
 
 import (
 	"errors"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
 	"log/slog"
 	"net/http"
 
@@ -58,6 +59,13 @@ func (r *authRoutes) Registration(c *gin.Context) {
 		UserType: req.UserType,
 	})
 	if err != nil {
+		if errors.Is(err, repoerrors.ErrUserExists) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
 		r.log.Error("failed to create user", logger.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -98,7 +106,7 @@ func (r *authRoutes) Login(c *gin.Context) {
 		Password: req.Password,
 	})
 	if err != nil {
-		if errors.Is(err, errors.New("wrong password")) {
+		if errors.Is(err, service.ErrWrongPassword) || errors.Is(err, repoerrors.ErrUserNotFound) {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
@@ -114,7 +122,7 @@ func (r *authRoutes) Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, response.Login{
+	c.JSON(http.StatusOK, response.Login{
 		Token: token,
 	})
 }

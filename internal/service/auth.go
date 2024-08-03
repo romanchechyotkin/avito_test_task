@@ -67,7 +67,7 @@ func (s *AuthService) CreateUser(ctx context.Context, input *AuthCreateUserInput
 func (s *AuthService) GenerateToken(ctx context.Context, input *AuthGenerateTokenInput) (string, error) {
 	user, err := s.userRepo.GetByEmail(ctx, input.Email)
 	if err != nil {
-		if errors.Is(err, repoerrors.ErrNotFound) {
+		if errors.Is(err, repoerrors.ErrUserNotFound) {
 			return "", err
 		}
 
