@@ -63,7 +63,7 @@ func (r *Repo) GetByEmail(ctx context.Context, email string) (*entity.User, erro
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, repoerrors.ErrNotFound
+			return nil, repoerrors.ErrUserNotFound
 		}
 
 		return nil, err
@@ -87,7 +87,7 @@ func (r *Repo) GetById(ctx context.Context, id int) (*entity.User, error) {
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, repoerrors.ErrNotFound
+			return nil, repoerrors.ErrUserNotFound
 		}
 
 		return nil, err
