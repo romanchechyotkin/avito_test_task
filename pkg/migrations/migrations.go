@@ -30,9 +30,9 @@ func Migrate(log *slog.Logger, fs *embed.FS, dbUrl string) {
 
 	switch err {
 	case nil:
-		log.Info("the migration schema successfully upgraded!")
+		log.Debug("the migration schema successfully upgraded!")
 	case migrate.ErrNoChange:
-		log.Info("the migration schema not changed")
+		log.Debug("the migration schema not changed")
 	default:
 		log.Error("could not apply the migration schema", logger.Error(err))
 	}

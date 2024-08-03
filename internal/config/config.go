@@ -2,28 +2,38 @@ package config
 
 import (
 	"flag"
-	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 	"log/slog"
 	"os"
+
+	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-// todo 127.0.0.1 => 0.0.0.0
 type Config struct {
-	HTTP struct {
-		Port string `yaml:"port" env:"PORT" env-default:"8080"`
-		Host string `yaml:"host" env:"HOST" env-default:"127.0.0.1"`
-	} `yaml:"http"`
-	Postgresql struct {
-		User       string `yaml:"user" env:"PG_USER" env-default:"postgres"`
-		Password   string `yaml:"password" env:"PG_PASSWORD" env-default:"5432"`
-		Host       string `yaml:"host" env:"PG_HOST" env-default:"127.0.0.1"`
-		Port       string `yaml:"port" env:"PG_PORT" env-default:"5432"`
-		Database   string `yaml:"database" env:"PG_DATABASE" env-default:"postgres"`
-		SSLMode    string `yaml:"ssl_mode" env:"PG_SSL" env-default:"disable"`
-		AutoCreate bool   `yaml:"auto_create" env:"PG_AUTO_CREATE" env-default:"true"`
-	} `yaml:"postgresql"`
+	HTTP       `yaml:"http"`
+	Postgresql `yaml:"postgresql"`
+	AuthAPI    `yaml:"auth_api"`
+}
+
+type HTTP struct {
+	Port string `yaml:"port" env:"PORT" env-default:"8080"`
+	Host string `yaml:"host" env:"HOST" env-default:"127.0.0.1"`
+}
+
+// todo 127.0.0.1 => 0.0.0.0
+type Postgresql struct {
+	User       string `yaml:"user" env:"PG_USER" env-default:"postgres"`
+	Password   string `yaml:"password" env:"PG_PASSWORD" env-default:"5432"`
+	Host       string `yaml:"host" env:"PG_HOST" env-default:"127.0.0.1"`
+	Port       string `yaml:"port" env:"PG_PORT" env-default:"5432"`
+	Database   string `yaml:"database" env:"PG_DATABASE" env-default:"postgres"`
+	SSLMode    string `yaml:"ssl_mode" env:"PG_SSL" env-default:"disable"`
+	AutoCreate bool   `yaml:"auto_create" env:"PG_AUTO_CREATE" env-default:"true"`
+}
+
+type AuthAPI struct {
+	URL string `yaml:"url" env:"AUTH_API"`
 }
 
 func New(log *slog.Logger) (*Config, error) {

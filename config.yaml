@@ -9,3 +9,5 @@ postgresql:
   database:
   ssl_mode:
   auto_create:
+auth_api:
+  url: 

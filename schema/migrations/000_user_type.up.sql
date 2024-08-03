@@ -1,0 +1,1 @@
+CREATE TYPE user_type AS ENUM ('client', 'moderator');
