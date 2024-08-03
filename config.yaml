@@ -1,0 +1,11 @@
+http:
+  host: localhost
+  port: 8080
+postgresql:
+  user:
+  password:
+  host:
+  port:
+  database:
+  ssl_mode:
+  auto_create:
