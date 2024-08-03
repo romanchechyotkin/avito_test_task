@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/house"
 	"log/slog"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
@@ -26,6 +27,7 @@ type Repositories struct {
 
 func NewRepositories(log *slog.Logger, pg *postgresql.Postgres) *Repositories {
 	return &Repositories{
-		User: user.NewRepo(log, pg),
+		User:  user.NewRepo(log, pg),
+		House: house.NewRepo(log, pg),
 	}
 }

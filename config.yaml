@@ -10,4 +10,8 @@ postgresql:
   ssl_mode:
   auto_create:
 auth_api:
-  url: 
+  url:
+jwt:
+  sign_key: secret # provide as env var
+  token_ttl: 60m
+

@@ -45,8 +45,10 @@ func Run() {
 
 	log.Debug("services init")
 	services := service.NewServices(&service.Dependencies{
-		Log:   log,
-		Repos: repositories,
+		Log:      log,
+		Repos:    repositories,
+		SignKey:  cfg.JWT.SignKey,
+		TokenTTL: cfg.JWT.TokenTTL,
 	})
 
 	router := gin.Default()

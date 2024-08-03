@@ -11,11 +11,11 @@ import (
 )
 
 func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services) {
-	router.Use(middleware.LogMiddleware(log))
-	router.Use(middleware.CORSMiddleware())
+	router.Use(middleware.CORS())
+	router.Use(middleware.Log(log))
 
 	router.GET("/status", func(c *gin.Context) {
-		c.String(http.StatusOK, "sad")
+		c.String(http.StatusOK, "ok\n")
 	})
 
 	authGroup := router.Group("/auth")
@@ -25,7 +25,7 @@ func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services)
 
 	houseGroup := router.Group("/house")
 	{
-		newHouseRoutes(log, houseGroup, services.House)
+		newHouseRoutes(log, houseGroup, services.House, services.Auth)
 	}
 
 }
