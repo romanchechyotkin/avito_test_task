@@ -14,6 +14,8 @@ func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services)
 	router.Use(middleware.CORS())
 	router.Use(middleware.Log(log))
 
+	authMiddleware := middleware.NewAuthMiddleware(services.Auth)
+
 	router.GET("/status", func(c *gin.Context) {
 		c.String(http.StatusOK, "ok\n")
 	})
@@ -23,9 +25,9 @@ func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services)
 		newAuthRoutes(log, authGroup, services.Auth)
 	}
 
-	houseGroup := router.Group("/house")
+	v1 := router.Group("/v1")
 	{
-		newHouseRoutes(log, houseGroup, services.House, services.Auth)
+		newHouseRoutes(log, v1.Group("/house", authMiddleware.ModeratorsOnly()), services.House)
 	}
 
 }
