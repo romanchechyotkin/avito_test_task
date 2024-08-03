@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/middleware"
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/request"
-	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/response"
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 
@@ -13,23 +13,23 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type houseRoutes struct {
+type flatRoutes struct {
 	log *slog.Logger
 
-	houseService service.House
+	flatService service.Flat
 }
 
-func newHouseRoutes(log *slog.Logger, g *gin.RouterGroup, houseService service.House) {
-	r := &houseRoutes{
-		log:          log,
-		houseService: houseService,
+func newFlatRoutes(log *slog.Logger, g *gin.RouterGroup, flatService service.Flat, authMiddleware *middleware.AuthMiddleware) {
+	r := &flatRoutes{
+		log:         log,
+		flatService: flatService,
 	}
 
-	g.POST("/create", r.createHouse)
+	g.POST("/create", authMiddleware.AuthOnly(), r.createFlat)
 }
 
-func (r *houseRoutes) createHouse(c *gin.Context) {
-	var req request.CreateHouse
+func (r *flatRoutes) createFlat(c *gin.Context) {
+	var req request.CreateFlat
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		r.log.Error("failed to read request data", logger.Error(err))
@@ -50,13 +50,14 @@ func (r *houseRoutes) createHouse(c *gin.Context) {
 		return
 	}
 
-	house, err := r.houseService.CreateHouse(c, &service.HouseCreateInput{
-		Address:   req.Address,
-		Year:      req.Year,
-		Developer: req.Developer,
+	flat, err := r.flatService.CreateFlat(c, &service.FlatCreateInput{
+		Number:      req.Number,
+		HouseID:     req.HouseID,
+		Price:       req.Price,
+		RoomsAmount: req.RoomsAmount,
 	})
 	if err != nil {
-		r.log.Error("failed to create house", logger.Error(err))
+		r.log.Error("failed to create flat", logger.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -64,5 +65,5 @@ func (r *houseRoutes) createHouse(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, response.BuildHouse(house))
+	c.JSON(http.StatusCreated, flat)
 }
