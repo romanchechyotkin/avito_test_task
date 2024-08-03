@@ -27,22 +27,22 @@ func NewRepo(log *slog.Logger, pg *postgresql.Postgres) *Repo {
 	}
 }
 
-func (r *Repo) CreateUser(ctx context.Context, user *entity.User) (int, error) {
+func (r *Repo) CreateUser(ctx context.Context, user *entity.User) (string, error) {
 	q := "INSERT INTO users (email, password, user_type) VALUES ($1, $2, $3) RETURNING id"
 
 	r.log.Debug("create user query", slog.String("query", q))
 
-	var id int
+	var id string
 	err := r.Pool.QueryRow(ctx, q, user.Email, user.Password, user.UserType).Scan(&id)
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if ok := errors.As(err, &pgErr); ok {
 			if pgErr.Code == UniqueConstraintCode {
-				return 0, repoerrors.ErrUserExists
+				return "", repoerrors.ErrUserExists
 			}
 		}
 
-		return 0, err
+		return "", err
 	}
 
 	return id, nil

@@ -27,7 +27,7 @@ func newAuthRoutes(log *slog.Logger, g *gin.RouterGroup, authService service.Aut
 		authService: authService,
 	}
 
-	g.POST("/registration", r.Registration)
+	g.POST("/register", r.Registration)
 	g.POST("/login", r.Login)
 }
 

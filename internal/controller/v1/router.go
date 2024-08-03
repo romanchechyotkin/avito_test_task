@@ -22,4 +22,10 @@ func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services)
 	{
 		newAuthRoutes(log, authGroup, services.Auth)
 	}
+
+	houseGroup := router.Group("/house")
+	{
+		newHouseRoutes(log, houseGroup, services.House)
+	}
+
 }
