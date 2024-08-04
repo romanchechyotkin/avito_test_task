@@ -95,5 +95,13 @@ func (r *houseRoutes) getHouseFlats(c *gin.Context) {
 		return
 	}
 
+	if len(flats) == 0 {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"data": "empty",
+		})
+
+		return
+	}
+
 	c.JSON(http.StatusOK, flats)
 }
