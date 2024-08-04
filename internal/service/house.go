@@ -13,12 +13,14 @@ type HouseService struct {
 	log *slog.Logger
 
 	houseRepo repo.House
+	flatRepo  repo.Flat
 }
 
-func NewHouseService(log *slog.Logger, houseRepo repo.House) *HouseService {
+func NewHouseService(log *slog.Logger, houseRepo repo.House, flatRepo repo.Flat) *HouseService {
 	return &HouseService{
 		log:       log,
 		houseRepo: houseRepo,
+		flatRepo:  flatRepo,
 	}
 }
 
@@ -36,4 +38,13 @@ func (s *HouseService) CreateHouse(ctx context.Context, input *HouseCreateInput)
 	}
 
 	return house, nil
+}
+
+func (s *HouseService) GetHouseFlats(ctx context.Context, input *GetHouseFlatsInput) ([]*entity.Flat, error) {
+	flats, err := s.flatRepo.GetHouseFlats(ctx, input.HouseID, input.UserType)
+	if err != nil {
+		return nil, err
+	}
+
+	return flats, nil
 }

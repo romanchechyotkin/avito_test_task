@@ -24,6 +24,7 @@ type House interface {
 type Flat interface {
 	CreateFlat(ctx context.Context, flat *entity.Flat) (*entity.Flat, error)
 	UpdateStatus(ctx context.Context, flat *entity.Flat) (*entity.Flat, error)
+	GetHouseFlats(ctx context.Context, houseID, userType string) ([]*entity.Flat, error)
 }
 
 type Repositories struct {

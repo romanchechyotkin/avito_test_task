@@ -44,6 +44,9 @@ func (m *AuthMiddleware) ModeratorsOnly() gin.HandlerFunc {
 			return
 		}
 
+		c.Set("userType", claims.UserType)
+		c.Set("userID", claims.UserID)
+
 		c.Next()
 	}
 }
@@ -74,6 +77,9 @@ func (m *AuthMiddleware) AuthOnly() gin.HandlerFunc {
 			})
 			return
 		}
+
+		c.Set("userType", claims.UserType)
+		c.Set("userID", claims.UserID)
 
 		c.Next()
 	}

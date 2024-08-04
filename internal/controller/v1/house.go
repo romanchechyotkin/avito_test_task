@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/middleware"
 	"log/slog"
 	"net/http"
 
@@ -19,13 +20,14 @@ type houseRoutes struct {
 	houseService service.House
 }
 
-func newHouseRoutes(log *slog.Logger, g *gin.RouterGroup, houseService service.House) {
+func newHouseRoutes(log *slog.Logger, g *gin.RouterGroup, houseService service.House, authMiddleware *middleware.AuthMiddleware) {
 	r := &houseRoutes{
 		log:          log,
 		houseService: houseService,
 	}
 
-	g.POST("/create", r.createHouse)
+	g.POST("/create", authMiddleware.ModeratorsOnly(), r.createHouse)
+	g.GET("/:id", authMiddleware.AuthOnly(), r.getHouseFlats)
 }
 
 func (r *houseRoutes) createHouse(c *gin.Context) {
@@ -65,4 +67,33 @@ func (r *houseRoutes) createHouse(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, response.BuildHouse(house))
+}
+
+func (r *houseRoutes) getHouseFlats(c *gin.Context) {
+	houseID := c.Param("id")
+
+	userType, ok := c.Get("userType")
+	if !ok {
+		r.log.Error("failed to get key from context", slog.String("key", "userType"))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "failed to get key from context",
+		})
+
+		return
+	}
+
+	flats, err := r.houseService.GetHouseFlats(c, &service.GetHouseFlatsInput{
+		UserType: userType.(string),
+		HouseID:  houseID,
+	})
+	if err != nil {
+		r.log.Error("failed to get house flats", logger.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, flats)
 }

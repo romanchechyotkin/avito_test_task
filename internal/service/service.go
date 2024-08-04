@@ -34,8 +34,14 @@ type HouseCreateInput struct {
 	Developer string
 }
 
+type GetHouseFlatsInput struct {
+	HouseID  string
+	UserType string
+}
+
 type House interface {
 	CreateHouse(ctx context.Context, input *HouseCreateInput) (*entity.House, error)
+	GetHouseFlats(ctx context.Context, input *GetHouseFlatsInput) ([]*entity.Flat, error)
 }
 
 type FlatCreateInput struct {
@@ -72,7 +78,7 @@ type Services struct {
 func NewServices(deps *Dependencies) *Services {
 	return &Services{
 		Auth:  NewAuthService(deps.Log, deps.Repos.User, deps.SignKey, deps.TokenTTL),
-		House: NewHouseService(deps.Log, deps.Repos.House),
+		House: NewHouseService(deps.Log, deps.Repos.House, deps.Repos.Flat),
 		Flat:  NewFlatService(deps.Log, deps.Repos.Flat),
 	}
 }
