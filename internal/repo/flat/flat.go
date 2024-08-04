@@ -101,3 +101,44 @@ func (r *Repo) UpdateStatus(ctx context.Context, flat *entity.Flat) (*entity.Fla
 
 	return flat, nil
 }
+
+// todo use lib for binding values
+func (r *Repo) GetHouseFlats(ctx context.Context, houseID, userType string) ([]*entity.Flat, error) {
+	q := `SELECT id, number, house_id, price, rooms_amount, moderation_status, created_at, updated_at FROM flats WHERE house_id = $1 `
+
+	if userType == "client" {
+		q += "AND moderation_status = 'approved'"
+	}
+
+	r.log.Debug("select all flats for house query", slog.String("query", q))
+
+	rows, err := r.Pool.Query(ctx, q, houseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var flats []*entity.Flat
+
+	for rows.Next() {
+		var flat entity.Flat
+
+		err = rows.Scan(
+			&flat.ID,
+			&flat.Number,
+			&flat.HouseID,
+			&flat.Price,
+			&flat.RoomsAmount,
+			&flat.ModerationStatus,
+			&flat.CreatedAt,
+			&flat.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		flats = append(flats, &flat)
+	}
+
+	return flats, nil
+}

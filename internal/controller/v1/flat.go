@@ -104,5 +104,5 @@ func (r *flatRoutes) updateFlat(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, flat)
+	c.JSON(http.StatusOK, flat)
 }

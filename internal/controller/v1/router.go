@@ -27,7 +27,7 @@ func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services)
 
 	v1 := router.Group("/v1")
 	{
-		newHouseRoutes(log, v1.Group("/house", authMiddleware.ModeratorsOnly()), services.House)
+		newHouseRoutes(log, v1.Group("/house"), services.House, authMiddleware)
 		newFlatRoutes(log, v1.Group("/flat"), services.Flat, authMiddleware)
 	}
 
