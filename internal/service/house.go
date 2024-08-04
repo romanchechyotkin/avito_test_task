@@ -48,3 +48,12 @@ func (s *HouseService) GetHouseFlats(ctx context.Context, input *GetHouseFlatsIn
 
 	return flats, nil
 }
+
+func (s *HouseService) CreateSubscription(ctx context.Context, input *CreateSubscriptionInput) error {
+	err := s.houseRepo.CreateSubscription(ctx, input.HouseID, input.UserID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

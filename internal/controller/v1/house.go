@@ -1,10 +1,10 @@
 package v1
 
 import (
-	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/middleware"
 	"log/slog"
 	"net/http"
 
+	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/middleware"
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/request"
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/response"
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
@@ -28,6 +28,7 @@ func newHouseRoutes(log *slog.Logger, g *gin.RouterGroup, houseService service.H
 
 	g.POST("/create", authMiddleware.ModeratorsOnly(), r.createHouse)
 	g.GET("/:id", authMiddleware.AuthOnly(), r.getHouseFlats)
+	g.POST("/:id/subscribe", authMiddleware.ClientsOnly(), r.subscribe)
 }
 
 func (r *houseRoutes) createHouse(c *gin.Context) {
@@ -104,4 +105,34 @@ func (r *houseRoutes) getHouseFlats(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, flats)
+}
+
+func (r *houseRoutes) subscribe(c *gin.Context) {
+	houseID := c.Param("id")
+
+	userID, ok := c.Get("userID")
+	if !ok {
+		r.log.Error("failed to get key from context", slog.String("key", "userType"))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "failed to get key from context",
+		})
+
+		return
+	}
+
+	if err := r.houseService.CreateSubscription(c, &service.CreateSubscriptionInput{
+		HouseID: houseID,
+		UserID:  userID.(string),
+	}); err != nil {
+		r.log.Error("failed to create subscription", slog.String("house id", houseID), slog.String("userid", userID.(string)))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "created",
+	})
 }

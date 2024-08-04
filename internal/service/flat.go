@@ -13,13 +13,15 @@ import (
 type FlatService struct {
 	log *slog.Logger
 
-	flatRepo repo.Flat
+	sendService Sender
+	flatRepo    repo.Flat
 }
 
-func NewFlatService(log *slog.Logger, flatRepo repo.Flat) *FlatService {
+func NewFlatService(log *slog.Logger, sendService Sender, flatRepo repo.Flat) *FlatService {
 	return &FlatService{
-		log:      log,
-		flatRepo: flatRepo,
+		log:         log,
+		sendService: sendService,
+		flatRepo:    flatRepo,
 	}
 }
 
@@ -76,6 +78,10 @@ func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*
 	if err != nil {
 		return nil, err
 	}
+
+	go func() {
+		s.sendService.Notify() <- flat.HouseID
+	}()
 
 	return flat, nil
 }

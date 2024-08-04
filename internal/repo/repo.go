@@ -20,6 +20,8 @@ type User interface {
 
 type House interface {
 	CreateHouse(ctx context.Context, house *entity.House) (*entity.House, error)
+	CreateSubscription(ctx context.Context, houseID, userID string) error
+	GetHouseSubscriptions(ctx context.Context, houseID uint) ([]string, error)
 }
 
 type Flat interface {

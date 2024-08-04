@@ -9,6 +9,10 @@ import (
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
 )
 
+type Sender interface {
+	Notify() chan<- uint
+}
+
 type AuthCreateUserInput struct {
 	Email    string
 	Password string
@@ -39,9 +43,15 @@ type GetHouseFlatsInput struct {
 	UserType string
 }
 
+type CreateSubscriptionInput struct {
+	HouseID string
+	UserID  string
+}
+
 type House interface {
 	CreateHouse(ctx context.Context, input *HouseCreateInput) (*entity.House, error)
 	GetHouseFlats(ctx context.Context, input *GetHouseFlatsInput) ([]*entity.Flat, error)
+	CreateSubscription(ctx context.Context, input *CreateSubscriptionInput) error
 }
 
 type FlatCreateInput struct {
@@ -71,15 +81,20 @@ type Dependencies struct {
 }
 
 type Services struct {
-	Auth  Auth
-	House House
-	Flat  Flat
+	Auth   Auth
+	House  House
+	Flat   Flat
+	Sender Sender
 }
 
+// todo search for best way
 func NewServices(deps *Dependencies) *Services {
+	sender := NewSenderService(deps.Log, deps.Repos.House)
+
 	return &Services{
-		Auth:  NewAuthService(deps.Log, deps.Repos.User, deps.SignKey, deps.TokenTTL),
-		House: NewHouseService(deps.Log, deps.Repos.House, deps.Repos.Flat),
-		Flat:  NewFlatService(deps.Log, deps.Repos.Flat),
+		Auth:   NewAuthService(deps.Log, deps.Repos.User, deps.SignKey, deps.TokenTTL),
+		House:  NewHouseService(deps.Log, deps.Repos.House, deps.Repos.Flat),
+		Flat:   NewFlatService(deps.Log, sender, deps.Repos.Flat),
+		Sender: sender,
 	}
 }

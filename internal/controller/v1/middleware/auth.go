@@ -9,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// todo refactoring
+
 type AuthMiddleware struct {
 	authService service.Auth
 }
@@ -38,6 +40,40 @@ func (m *AuthMiddleware) ModeratorsOnly() gin.HandlerFunc {
 		}
 
 		if claims.UserType != "moderator" {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "no roots",
+			})
+			return
+		}
+
+		c.Set("userType", claims.UserType)
+		c.Set("userID", claims.UserID)
+
+		c.Next()
+	}
+}
+
+func (m *AuthMiddleware) ClientsOnly() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		header := c.GetHeader("Authorization")
+		parts := strings.Split(header, " ")
+
+		if parts[0] != "Bearer" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "no authorization",
+			})
+			return
+		}
+
+		claims, err := m.authService.ParseToken(parts[1])
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "no authorization",
+			})
+			return
+		}
+
+		if claims.UserType != "client" {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"error": "no roots",
 			})
