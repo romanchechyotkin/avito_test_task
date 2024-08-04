@@ -23,18 +23,24 @@ func (m *AuthMiddleware) ModeratorsOnly() gin.HandlerFunc {
 		parts := strings.Split(header, " ")
 
 		if parts[0] != "Bearer" {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "no authorization",
+			})
 			return
 		}
 
 		claims, err := m.authService.ParseToken(parts[1])
 		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "no authorization",
+			})
 			return
 		}
 
 		if claims.UserType != "moderator" {
-			c.AbortWithStatus(http.StatusForbidden)
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "no roots",
+			})
 			return
 		}
 
@@ -48,18 +54,24 @@ func (m *AuthMiddleware) AuthOnly() gin.HandlerFunc {
 		parts := strings.Split(header, " ")
 
 		if parts[0] != "Bearer" {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "no authorization",
+			})
 			return
 		}
 
 		claims, err := m.authService.ParseToken(parts[1])
 		if err != nil {
-			c.AbortWithStatus(http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "no authorization",
+			})
 			return
 		}
 
 		if claims.UserType != "moderator" && claims.UserType != "client" {
-			c.AbortWithStatus(http.StatusForbidden)
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"error": "no roots",
+			})
 			return
 		}
 
