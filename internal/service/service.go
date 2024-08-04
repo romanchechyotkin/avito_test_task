@@ -45,8 +45,14 @@ type FlatCreateInput struct {
 	RoomsAmount uint
 }
 
+type FlatUpdateInput struct {
+	ID     uint
+	Status string
+}
+
 type Flat interface {
 	CreateFlat(ctx context.Context, input *FlatCreateInput) (*entity.Flat, error)
+	UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*entity.Flat, error)
 }
 
 type Dependencies struct {
