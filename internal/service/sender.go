@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"math/rand"
+	"sync"
 	"time"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
@@ -54,14 +55,25 @@ func (s *SenderService) Run() {
 				continue
 			}
 
+			var wg sync.WaitGroup
+
 			for _, email := range emailsToSend {
-				s.log.Debug("sent email", slog.String("email", email))
-				err = s.sendEmail(context.Background(), email, "MESSAGE")
-				if err != nil {
-					// todo append in slice to repeat infinity times
-					continue
-				}
+				wg.Add(1)
+
+				go func(email string) {
+					defer wg.Done()
+
+					s.log.Debug("sent email", slog.String("email", email))
+
+					err = s.sendEmail(context.Background(), email, "MESSAGE")
+					if err != nil {
+						// todo append in slice to repeat infinity times
+						return
+					}
+				}(email)
 			}
+
+			wg.Wait()
 		}
 	}
 }
