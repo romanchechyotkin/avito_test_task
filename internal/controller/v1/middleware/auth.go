@@ -68,9 +68,9 @@ func (m *AuthMiddleware) AuthOnly() gin.HandlerFunc {
 			return
 		}
 
-		if claims.UserType != "moderator" && claims.UserType != "client" {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-				"error": "no roots",
+		if claims.UserType == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "no authorization",
 			})
 			return
 		}
