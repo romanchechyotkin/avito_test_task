@@ -6,3 +6,8 @@ type CreateFlat struct {
 	Price       uint `json:"price" validate:"required"`
 	RoomsAmount uint `json:"rooms_amount" validate:"required"`
 }
+
+type UpdateFlat struct {
+	ID     uint   `json:"id" validate:"required"`
+	Status string `json:"status" validate:"required,oneof=created approved declined 'on moderation'"`
+}

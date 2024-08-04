@@ -26,6 +26,7 @@ func newFlatRoutes(log *slog.Logger, g *gin.RouterGroup, flatService service.Fla
 	}
 
 	g.POST("/create", authMiddleware.AuthOnly(), r.createFlat)
+	g.PATCH("/update", authMiddleware.ModeratorsOnly(), r.updateFlat)
 }
 
 func (r *flatRoutes) createFlat(c *gin.Context) {
@@ -58,6 +59,44 @@ func (r *flatRoutes) createFlat(c *gin.Context) {
 	})
 	if err != nil {
 		r.log.Error("failed to create flat", logger.Error(err))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusCreated, flat)
+}
+
+func (r *flatRoutes) updateFlat(c *gin.Context) {
+	var req request.UpdateFlat
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		r.log.Error("failed to read request data", logger.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	// todo custom validator with russian responses
+	if err := validator.New().Struct(req); err != nil {
+		r.log.Error("failed to validate request data", logger.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		return
+	}
+
+	flat, err := r.flatService.UpdateFlat(c, &service.FlatUpdateInput{
+		ID:     req.ID,
+		Status: req.Status,
+	})
+	if err != nil {
+		r.log.Error("failed to update flat status", logger.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})

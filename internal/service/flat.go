@@ -34,3 +34,15 @@ func (s *FlatService) CreateFlat(ctx context.Context, input *FlatCreateInput) (*
 
 	return flat, nil
 }
+
+func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*entity.Flat, error) {
+	flat, err := s.flatRepo.UpdateStatus(ctx, &entity.Flat{
+		ID:               input.ID,
+		ModerationStatus: input.Status,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return flat, nil
+}

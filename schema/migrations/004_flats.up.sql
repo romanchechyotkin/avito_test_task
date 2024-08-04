@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS flats (
     rooms_amount INT NOT NULL,
     moderation_status moderation_type DEFAULT 'created',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE (house_id, number)
 );

@@ -48,7 +48,7 @@ func (r *Repo) CreateFlat(ctx context.Context, flat *entity.Flat) (*entity.Flat,
 	}()
 
 	q := `INSERT INTO flats (number, house_id, price, rooms_amount) VALUES ($1, $2, $3, $4)
-	RETURNING id, number, house_id, price, rooms_amount, moderation_status, created_at
+	RETURNING id, number, house_id, price, rooms_amount, moderation_status, created_at, updated_at
 `
 
 	r.log.Debug("create flat query", slog.String("query", q))
@@ -61,6 +61,7 @@ func (r *Repo) CreateFlat(ctx context.Context, flat *entity.Flat) (*entity.Flat,
 		&flat.RoomsAmount,
 		&flat.ModerationStatus,
 		&flat.CreatedAt,
+		&flat.UpdatedAt,
 	); err != nil {
 		return nil, err
 	}
@@ -74,6 +75,29 @@ func (r *Repo) CreateFlat(ctx context.Context, flat *entity.Flat) (*entity.Flat,
 	}
 
 	r.log.Debug("update result", slog.Int64("rows affected", exec.RowsAffected()))
+
+	return flat, nil
+}
+
+func (r *Repo) UpdateStatus(ctx context.Context, flat *entity.Flat) (*entity.Flat, error) {
+	q := `UPDATE flats SET moderation_status = $1, updated_at = $2 WHERE id = $3
+	RETURNING id, number, house_id, price, rooms_amount, moderation_status, created_at, updated_at
+`
+
+	r.log.Debug("update flat status query", slog.String("query", q))
+
+	if err := r.Pool.QueryRow(ctx, q, flat.ModerationStatus, time.Now(), flat.ID).Scan(
+		&flat.ID,
+		&flat.Number,
+		&flat.HouseID,
+		&flat.Price,
+		&flat.RoomsAmount,
+		&flat.ModerationStatus,
+		&flat.CreatedAt,
+		&flat.UpdatedAt,
+	); err != nil {
+		return nil, err
+	}
 
 	return flat, nil
 }
