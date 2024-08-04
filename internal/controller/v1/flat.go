@@ -72,6 +72,16 @@ func (r *flatRoutes) createFlat(c *gin.Context) {
 func (r *flatRoutes) updateFlat(c *gin.Context) {
 	var req request.UpdateFlat
 
+	userID, ok := c.Get("userID")
+	if !ok {
+		r.log.Error("failed to get key from context", slog.String("key", "userType"))
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "failed to get key from context",
+		})
+
+		return
+	}
+
 	if err := c.ShouldBindJSON(&req); err != nil {
 		r.log.Error("failed to read request data", logger.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -92,8 +102,9 @@ func (r *flatRoutes) updateFlat(c *gin.Context) {
 	}
 
 	flat, err := r.flatService.UpdateFlat(c, &service.FlatUpdateInput{
-		ID:     req.ID,
-		Status: req.Status,
+		ID:          req.ID,
+		Status:      req.Status,
+		ModeratorID: userID.(string),
 	})
 	if err != nil {
 		r.log.Error("failed to update flat status", logger.Error(err))

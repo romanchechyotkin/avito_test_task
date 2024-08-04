@@ -79,14 +79,27 @@ func (r *Repo) CreateFlat(ctx context.Context, flat *entity.Flat) (*entity.Flat,
 	return flat, nil
 }
 
-func (r *Repo) UpdateStatus(ctx context.Context, flat *entity.Flat) (*entity.Flat, error) {
-	q := `UPDATE flats SET moderation_status = $1, updated_at = $2 WHERE id = $3
+func (r *Repo) GetStatus(ctx context.Context, id uint) (string, error) {
+	q := `SELECT moderation_status FROM flats WHERE id = $1`
+
+	r.log.Debug("select flat status query", slog.String("query", q))
+
+	var status string
+	if err := r.Pool.QueryRow(ctx, q, id).Scan(&status); err != nil {
+		return "", err
+	}
+
+	return status, nil
+}
+
+func (r *Repo) UpdateStatus(ctx context.Context, flat *entity.Flat, moderatorID string) (*entity.Flat, error) {
+	q := `UPDATE flats SET moderation_status = $1, moderator_id = $2, updated_at = $3 WHERE id = $4
 	RETURNING id, number, house_id, price, rooms_amount, moderation_status, created_at, updated_at
 `
 
 	r.log.Debug("update flat status query", slog.String("query", q))
 
-	if err := r.Pool.QueryRow(ctx, q, flat.ModerationStatus, time.Now(), flat.ID).Scan(
+	if err := r.Pool.QueryRow(ctx, q, flat.ModerationStatus, moderatorID, time.Now(), flat.ID).Scan(
 		&flat.ID,
 		&flat.Number,
 		&flat.HouseID,
