@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log/slog"
 
@@ -57,10 +58,21 @@ func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*
 		return nil, errors.New("квартира уже прошла модерарацию")
 	}
 
+	if input.Status == "created" {
+		input.ModeratorID = ""
+	}
+
+	if input.Status == "approved" || input.Status == "declined" {
+		input.ModeratorID = ""
+	}
+
 	flat, err := s.flatRepo.UpdateStatus(ctx, &entity.Flat{
 		ID:               input.ID,
 		ModerationStatus: input.Status,
-	}, input.ModeratorID)
+	}, sql.NullString{
+		String: input.ModeratorID,
+		Valid:  len(input.ModeratorID) > 0,
+	})
 	if err != nil {
 		return nil, err
 	}

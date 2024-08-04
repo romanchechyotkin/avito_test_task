@@ -2,6 +2,7 @@ package flat
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 	"time"
 
@@ -92,7 +93,7 @@ func (r *Repo) GetStatus(ctx context.Context, id uint) (string, error) {
 	return status, nil
 }
 
-func (r *Repo) UpdateStatus(ctx context.Context, flat *entity.Flat, moderatorID string) (*entity.Flat, error) {
+func (r *Repo) UpdateStatus(ctx context.Context, flat *entity.Flat, moderatorID sql.NullString) (*entity.Flat, error) {
 	q := `UPDATE flats SET moderation_status = $1, moderator_id = $2, updated_at = $3 WHERE id = $4
 	RETURNING id, number, house_id, price, rooms_amount, moderation_status, created_at, updated_at
 `

@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"database/sql"
 	"log/slog"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
@@ -24,7 +25,7 @@ type House interface {
 type Flat interface {
 	CreateFlat(ctx context.Context, flat *entity.Flat) (*entity.Flat, error)
 	GetStatus(ctx context.Context, id uint) (string, error)
-	UpdateStatus(ctx context.Context, flat *entity.Flat, userID string) (*entity.Flat, error)
+	UpdateStatus(ctx context.Context, flat *entity.Flat, userID sql.NullString) (*entity.Flat, error)
 	GetHouseFlats(ctx context.Context, houseID, userType string) ([]*entity.Flat, error)
 }
 
