@@ -52,8 +52,9 @@ type FlatCreateInput struct {
 }
 
 type FlatUpdateInput struct {
-	ID     uint
-	Status string
+	ID          uint
+	Status      string
+	ModeratorID string
 }
 
 type Flat interface {
