@@ -63,7 +63,7 @@ jobs:
 
       - name: Test
         env:
-          CONFIG_PATH: ./.github/config.yaml
+          CONFIG_PATH: ./avito_test_task/config.yaml
           PG_USER: postgres
           PG_PASSWORD: 5432
           PG_HOST: postgres
@@ -92,6 +92,15 @@ jobs:
           go build ./...
 
       - name: Generate test coverage
+        env:
+          CONFIG_PATH: ./avito_test_task/config.yaml
+          PG_USER: postgres
+          PG_PASSWORD: 5432
+          PG_HOST: postgres
+          PG_PORT: 5432
+          PG_DATABASE: postgres
+          PG_SSL: disable
+          PG_AUTO_CREATE: true
         run:
           go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
 
