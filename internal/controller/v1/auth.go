@@ -7,7 +7,6 @@ import (
 
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/request"
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/response"
-	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 
@@ -59,7 +58,7 @@ func (r *authRoutes) Registration(c *gin.Context) {
 		UserType: req.UserType,
 	})
 	if err != nil {
-		if errors.Is(err, repoerrors.ErrUserExists) {
+		if errors.Is(err, service.ErrUserExists) {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
@@ -106,7 +105,7 @@ func (r *authRoutes) Login(c *gin.Context) {
 		Password: req.Password,
 	})
 	if err != nil {
-		if errors.Is(err, service.ErrWrongPassword) || errors.Is(err, repoerrors.ErrUserNotFound) {
+		if errors.Is(err, service.ErrWrongPassword) || errors.Is(err, service.ErrUserNotFound) {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
