@@ -8,22 +8,29 @@ import (
 
 const defaultLevel = slog.LevelDebug
 
-// todo refactor => devLogger() prodLogger()
-// todo add source for dev
 func New() *slog.Logger {
 	var handler slog.Handler
 
 	if env := os.Getenv("APP_ENV"); env == "prod" {
-		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-			Level: configLevel(),
-		})
+		handler = prodHandler()
 	} else {
-		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-			Level: configLevel(),
-		})
+		handler = devHandler()
 	}
 
 	return slog.New(handler)
+}
+
+func prodHandler() slog.Handler {
+	return slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: configLevel(),
+	})
+}
+
+func devHandler() slog.Handler {
+	return slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level:     configLevel(),
+		AddSource: true,
+	})
 }
 
 func configLevel() slog.Level {
