@@ -1,0 +1,9 @@
+postgresql:
+  user:
+  password:
+  host:
+  port:
+  database: estate_service
+  ssl_mode:
+  auto_create:
+
