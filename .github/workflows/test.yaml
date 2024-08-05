@@ -1,4 +1,4 @@
-name: CI
+name: testing
 
 on:
   push:
@@ -24,15 +24,15 @@ jobs:
           go-version: '1.22'
           cache: true
 
-      - name: build
+      - name: Build
         run: |
           go mod tidy
           go build ./...
 
-      - name: test
+      - name: Test
         run: go test -coverprofile=profile.out -covermode=atomic -v -coverpkg=./... ./...
 
-      - name: upload artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: coverage
