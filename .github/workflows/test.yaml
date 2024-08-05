@@ -10,6 +10,10 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flags: ['']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,5 +46,6 @@ jobs:
           name: coverage
           path: |
             cover.out
+            cover_race.out
           if-no-files-found: error
           retention-days: 1
