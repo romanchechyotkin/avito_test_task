@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -227,6 +228,8 @@ func TestAuthRoutes_Registration(t *testing.T) {
 			tt.mockBehavior(authService, tt.args)
 			services := &service.Services{Auth: authService}
 
+			gin.SetMode(gin.ReleaseMode)
+			gin.DefaultWriter = io.Discard
 			router := gin.New()
 			authGroup := router.Group("/auth")
 
@@ -421,6 +424,8 @@ func TestAuthRoutes_Login(t *testing.T) {
 			tt.mockBehavior(authService, tt.args)
 			services := &service.Services{Auth: authService}
 
+			gin.SetMode(gin.ReleaseMode)
+			gin.DefaultWriter = io.Discard
 			router := gin.New()
 			authGroup := router.Group("/auth")
 

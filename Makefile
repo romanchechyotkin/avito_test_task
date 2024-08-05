@@ -22,4 +22,4 @@ gen: mock docs
 
 .PHONY: test
 test:
-	go test ./... -v
+	go test -covermode=atomic -v -coverpkg=./... ./...
