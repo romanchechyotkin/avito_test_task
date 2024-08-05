@@ -3,12 +3,18 @@ package flat
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log/slog"
 	"time"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/codes"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type Repo struct {
@@ -64,6 +70,19 @@ func (r *Repo) CreateFlat(ctx context.Context, flat *entity.Flat) (*entity.Flat,
 		&flat.CreatedAt,
 		&flat.UpdatedAt,
 	); err != nil {
+		var pgErr *pgconn.PgError
+		if ok := errors.As(err, &pgErr); ok {
+			if pgErr.Code == codes.ForeignKeyConstraint {
+				return nil, repoerrors.ErrNotFound
+			}
+		}
+
+		if ok := errors.As(err, &pgErr); ok {
+			if pgErr.Code == codes.UniqueConstraintCode {
+				return nil, repoerrors.ErrAlreadyExists
+			}
+		}
+
 		return nil, err
 	}
 
@@ -87,6 +106,10 @@ func (r *Repo) GetStatus(ctx context.Context, id uint) (string, error) {
 
 	var status string
 	if err := r.Pool.QueryRow(ctx, q, id).Scan(&status); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", repoerrors.ErrNotFound
+		}
+
 		return "", err
 	}
 
@@ -110,6 +133,10 @@ func (r *Repo) UpdateStatus(ctx context.Context, flat *entity.Flat, moderatorID 
 		&flat.CreatedAt,
 		&flat.UpdatedAt,
 	); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, repoerrors.ErrNotFound
+		}
+
 		return nil, err
 	}
 
@@ -128,6 +155,10 @@ func (r *Repo) GetHouseFlats(ctx context.Context, houseID, userType string) ([]*
 
 	rows, err := r.Pool.Query(ctx, q, houseID)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, repoerrors.ErrNotFound
+		}
+
 		return nil, err
 	}
 	defer rows.Close()

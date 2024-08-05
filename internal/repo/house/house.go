@@ -2,10 +2,16 @@ package house
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/codes"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
 	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type Repo struct {
@@ -35,6 +41,13 @@ func (r *Repo) CreateHouse(ctx context.Context, house *entity.House) (*entity.Ho
 		&house.CreatedAt,
 		&house.UpdatedAt,
 	); err != nil {
+		var pgErr *pgconn.PgError
+		if ok := errors.As(err, &pgErr); ok {
+			if pgErr.Code == codes.UniqueConstraintCode {
+				return nil, repoerrors.ErrAlreadyExists
+			}
+		}
+
 		return nil, err
 	}
 
@@ -48,8 +61,18 @@ func (r *Repo) CreateSubscription(ctx context.Context, houseID, userID string) e
 
 	exec, err := r.Pool.Exec(ctx, q, houseID, userID)
 	if err != nil {
-		// todo 23503 violates foreign key constraint
-		// todo violates unique constraint \"house_subscriptions_pkey\" (SQLSTATE 23505
+		var pgErr *pgconn.PgError
+		if ok := errors.As(err, &pgErr); ok {
+			if pgErr.Code == codes.ForeignKeyConstraint {
+				return repoerrors.ErrNotFound
+			}
+		}
+
+		if ok := errors.As(err, &pgErr); ok {
+			if pgErr.Code == codes.UniqueConstraintCode {
+				return repoerrors.ErrAlreadyExists
+			}
+		}
 
 		return err
 	}
@@ -64,6 +87,10 @@ func (r *Repo) GetHouseSubscriptions(ctx context.Context, houseID uint) ([]strin
 
 	rows, err := r.Pool.Query(ctx, q, houseID)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, repoerrors.ErrNotFound
+		}
+
 		return nil, err
 	}
 	defer rows.Close()

@@ -8,6 +8,7 @@ import (
 
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
 )
 
 type FlatService struct {
@@ -26,7 +27,6 @@ func NewFlatService(log *slog.Logger, sendService Sender, flatRepo repo.Flat) *F
 }
 
 func (s *FlatService) CreateFlat(ctx context.Context, input *FlatCreateInput) (*entity.Flat, error) {
-	// todo make one line return
 	flat, err := s.flatRepo.CreateFlat(ctx, &entity.Flat{
 		Number:      input.Number,
 		HouseID:     input.HouseID,
@@ -34,6 +34,14 @@ func (s *FlatService) CreateFlat(ctx context.Context, input *FlatCreateInput) (*
 		RoomsAmount: input.RoomsAmount,
 	})
 	if err != nil {
+		if errors.Is(err, repoerrors.ErrNotFound) {
+			return nil, ErrHouseNotFound
+		}
+
+		if errors.Is(err, repoerrors.ErrAlreadyExists) {
+			return nil, ErrFlatExists
+		}
+
 		return nil, err
 	}
 
@@ -43,7 +51,10 @@ func (s *FlatService) CreateFlat(ctx context.Context, input *FlatCreateInput) (*
 func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*entity.Flat, error) {
 	status, err := s.flatRepo.GetStatus(ctx, input.ID)
 	if err != nil {
-		// todo NoRowsError
+		if errors.Is(err, repoerrors.ErrNotFound) {
+			return nil, ErrFlatNotFound
+		}
+
 		return nil, err
 	}
 
