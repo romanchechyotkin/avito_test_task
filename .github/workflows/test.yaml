@@ -10,10 +10,6 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        flags: [ '', '-race' ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,14 +26,23 @@ jobs:
           go build ./...
 
       - name: Test
-        run: go test -coverprofile=profile.out -covermode=atomic -v -coverpkg=./... ./...
+        run: CGO_ENABLED=1 go test ./... -v -race
+
+      - name: Generate test coverage
+        run:
+          go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... ./...
+
+      - name: Check test coverage
+        uses: vladopajic/go-test-coverage@v2
+        with:
+          config: ./.github/.testcoverage.yaml
+          git-branch: badges
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: coverage
           path: |
-            profile.out
-            profile_race.out
+            cover.out
           if-no-files-found: error
           retention-days: 1
