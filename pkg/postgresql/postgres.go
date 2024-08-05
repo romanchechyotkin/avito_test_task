@@ -35,12 +35,13 @@ func New(log *slog.Logger, cfg *config.Postgresql) (*Postgres, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 
-	url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+	url := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.User,
 		cfg.Password,
 		cfg.Host,
 		cfg.Port,
 		cfg.Database,
+		cfg.SSLMode,
 	)
 
 	log.Debug("connection url", slog.String("url", url))

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -31,7 +32,14 @@ func Run() {
 	log.Debug("app configuration", slog.Any("cfg", cfg))
 
 	log.Debug("migrations starting")
-	migrations.Migrate(log, &schema.DB, "postgres://postgres:5432@localhost:5432/estate_service?sslmode=disable")
+	migrations.Migrate(log, &schema.DB, fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.Postgresql.User,
+		cfg.Postgresql.Password,
+		cfg.Postgresql.Host,
+		cfg.Postgresql.Port,
+		cfg.Postgresql.Database,
+		cfg.Postgresql.SSLMode,
+	))
 
 	log.Debug("postgresql starting")
 	postgres, err := postgresql.New(log, &cfg.Postgresql)
@@ -51,6 +59,9 @@ func Run() {
 		TokenTTL: cfg.JWT.TokenTTL,
 	})
 
+	if env := os.Getenv("APP_ENV"); env == "prod" {
+		gin.SetMode(gin.ReleaseMode)
+	}
 	router := gin.Default()
 	v1.NewRouter(log, router, services)
 
