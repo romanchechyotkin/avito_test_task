@@ -63,7 +63,7 @@ jobs:
 
       - name: Test
         env:
-          CONFIG_PATH: ${GITHUB_WORKSPACE}/config.yaml
+          CONFIG_PATH: ${{ github.workspace }}/config.yaml
           PG_USER: postgres
           PG_PASSWORD: 5432
           PG_HOST: postgres
@@ -94,7 +94,7 @@ jobs:
 
       - name: Generate test coverage
         env:
-          CONFIG_PATH: ${GITHUB_WORKSPACE}/config.yaml
+          CONFIG_PATH: ${{ github.workspace }}/config.yaml
           PG_USER: postgres
           PG_PASSWORD: 5432
           PG_HOST: postgres
