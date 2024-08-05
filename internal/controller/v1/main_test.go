@@ -8,6 +8,8 @@ import (
 )
 
 func TestMain(t *testing.M) {
-	gin.SetMode(gin.TestMode)
+	gin.SetMode(gin.ReleaseMode)
 	gin.DefaultWriter = io.Discard
+
+	t.Run()
 }
