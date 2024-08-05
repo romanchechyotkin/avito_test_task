@@ -30,7 +30,15 @@ jobs:
           go build ./...
 
       - name: Test
-        run: go test -coverprofile=profile.out -covermode=atomic -v -coverpkg=./... ./...
+        run: go test ./... -v
+
+      - name: Coverage
+        uses: vladopajic/go-test-coverage@v2
+        with:
+          profile: cover.out
+          local-prefix: github.com/romanchechyotkin/avito_test_task
+        run:
+          go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... ./...
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
