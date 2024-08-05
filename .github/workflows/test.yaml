@@ -35,8 +35,8 @@ jobs:
       - name: Check test coverage
         uses: vladopajic/go-test-coverage@v2
         with:
-          profile: cover.out
-          local-prefix: github.com/romanchechyotkin/avito_test_task
+          config: ./.github/.testcoverage.yaml
+          git-branch: badges
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
