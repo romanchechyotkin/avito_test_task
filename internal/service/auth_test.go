@@ -18,7 +18,7 @@ import (
 )
 
 func TestAuthService_CreateUser(t *testing.T) {
-	log := logger.NewDiscardLogger()
+	log := logger.New()
 
 	cfg, err := config.New(log)
 	assert.NoError(t, err)

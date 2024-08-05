@@ -63,6 +63,7 @@ jobs:
 
       - name: Test
         env:
+          CONFIG_PATH: config.yaml
           PG_USER: postgres
           PG_PASSWORD: 5432
           PG_HOST: postgres
