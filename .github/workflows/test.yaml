@@ -64,13 +64,6 @@ jobs:
       - name: Test
         env:
           CONFIG_PATH: ${{ github.workspace }}/config.yaml
-#          PG_USER: postgres
-#          PG_PASSWORD: 5432
-#          PG_HOST: postgres
-#          PG_PORT: 5432
-#          PG_DATABASE: postgres
-#          PG_SSL: disable
-#          PG_AUTO_CREATE: true
         run: CGO_ENABLED=1 go test ./... -v -race -tags=integration
 
   coverage:

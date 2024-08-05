@@ -44,6 +44,7 @@ func TestAuthService_CreateUser(t *testing.T) {
 
 	authService := NewAuthService(log, repositories.User, cfg.JWT.SignKey, cfg.JWT.TokenTTL)
 
+	log.Debug("creating invalid user")
 	_, err = authService.CreateUser(context.Background(), &AuthCreateUserInput{
 		Email:    "test",
 		Password: "test",
@@ -51,6 +52,7 @@ func TestAuthService_CreateUser(t *testing.T) {
 	})
 	require.Error(t, err)
 
+	log.Debug("creating correct user")
 	_, err = authService.CreateUser(context.Background(), &AuthCreateUserInput{
 		Email:    "test",
 		Password: "test",
@@ -58,6 +60,7 @@ func TestAuthService_CreateUser(t *testing.T) {
 	})
 	require.NoError(t, err)
 
+	log.Debug("creating existing user")
 	_, err = authService.CreateUser(context.Background(), &AuthCreateUserInput{
 		Email:    "test",
 		Password: "test",
