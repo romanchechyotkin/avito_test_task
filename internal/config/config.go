@@ -57,6 +57,7 @@ func New(log *slog.Logger) (*Config, error) {
 }
 
 func fetchConfigPath() string {
+
 	var path string
 
 	if path = os.Getenv("CONFIG_PATH"); path == "" {
