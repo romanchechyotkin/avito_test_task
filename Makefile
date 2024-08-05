@@ -30,7 +30,7 @@ integration-test:
 
 .PHONY: coverage
 coverage:
-	go test -coverprofile=coverage.out ./... -tags=unit,integration inte
+	go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
 
 .PHONY: test
 test: unit-test integration-test
