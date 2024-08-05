@@ -5,6 +5,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"testing"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/config"
@@ -23,11 +24,13 @@ func TestAuthService_CreateUser(t *testing.T) {
 	cfg, err := config.New(log)
 	assert.NoError(t, err)
 
+	log.Debug("app configuration", slog.Any("cfg", cfg.Postgresql))
+
 	pg, err := postgresql.New(log, &cfg.Postgresql)
 	assert.NoError(t, err)
 	defer pg.Close()
 
-	migrations.Migrate(log, &schema.DB, fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+	err = migrations.Migrate(log, &schema.DB, fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.Postgresql.User,
 		cfg.Postgresql.Password,
 		cfg.Postgresql.Host,
@@ -35,6 +38,7 @@ func TestAuthService_CreateUser(t *testing.T) {
 		cfg.Postgresql.Database,
 		cfg.Postgresql.SSLMode,
 	))
+	assert.NoError(t, err)
 
 	repositories := repo.NewRepositories(log, pg)
 

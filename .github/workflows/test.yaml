@@ -71,9 +71,7 @@ jobs:
           PG_DATABASE: postgres
           PG_SSL: disable
           PG_AUTO_CREATE: true
-        run: |
-          echo "Using CONFIG_PATH: $CONFIG_PATH"
-          CGO_ENABLED=1 go test ./... -v -race -tags=integration
+        run: CGO_ENABLED=1 go test ./... -v -race -tags=integration
 
   coverage:
     runs-on: ubuntu-latest
@@ -102,9 +100,7 @@ jobs:
           PG_DATABASE: postgres
           PG_SSL: disable
           PG_AUTO_CREATE: true
-        run: |
-          echo "Using CONFIG_PATH: $CONFIG_PATH"
-          go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
+        run: go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
 
       - name: Check test coverage
         uses: vladopajic/go-test-coverage@v2
