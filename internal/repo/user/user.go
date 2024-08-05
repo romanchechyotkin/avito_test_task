@@ -64,6 +64,13 @@ func (r *Repo) GetByEmail(ctx context.Context, email string) (*entity.User, erro
 			return nil, repoerrors.ErrNotFound
 		}
 
+		var pgErr *pgconn.PgError
+		if ok := errors.As(err, &pgErr); ok {
+			if pgErr.Code == codes.UniqueConstraintCode {
+				return nil, repoerrors.ErrAlreadyExists
+			}
+		}
+
 		return nil, err
 	}
 

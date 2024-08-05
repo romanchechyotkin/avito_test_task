@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
@@ -58,7 +59,15 @@ func (r *flatRoutes) createFlat(c *gin.Context) {
 		RoomsAmount: req.RoomsAmount,
 	})
 	if err != nil {
-		r.log.Error("failed to create flat", logger.Error(err))
+		if errors.Is(err, service.ErrHouseNotFound) || errors.Is(err, service.ErrFlatExists) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+
+			return
+		}
+
+		r.log.Error("failed to create flat in database", logger.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -107,6 +116,14 @@ func (r *flatRoutes) updateFlat(c *gin.Context) {
 		ModeratorID: userID.(string),
 	})
 	if err != nil {
+		if errors.Is(err, service.ErrFlatNotFound) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+
+			return
+		}
+
 		r.log.Error("failed to update flat status", logger.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
