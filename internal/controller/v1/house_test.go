@@ -1,17 +1,15 @@
-//go:build unit
-
 package v1
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/middleware"
-	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/request"
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/internal/service/mocks"
@@ -32,20 +30,26 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		token            string
 	}
 
+	type inputBody struct {
+		Address   string `json:"address" validate:"required"`
+		Year      uint   `json:"year" validate:"required"`
+		Developer string `json:"developer"`
+	}
+
 	type AuthMockBehaviour func(m *mocks.MockAuth, args args)
 	type HouseMockBehaviour func(m *mocks.MockHouse, args args)
 
 	testCases := []struct {
 		name              string
 		args              args
-		reqBody           request.CreateHouse
+		inputBody         inputBody
 		houseMockBehavior HouseMockBehaviour
 		authMockBehavior  AuthMockBehaviour
 		wantStatusCode    int
 	}{
 		{
 			name: "successful create",
-			reqBody: request.CreateHouse{
+			inputBody: inputBody{
 				Address:   "Ул Пушкина 1",
 				Year:      1999,
 				Developer: "",
@@ -77,7 +81,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; client user",
-			reqBody: request.CreateHouse{
+			inputBody: inputBody{
 				Address:   "Ул Пушкина 1",
 				Year:      1999,
 				Developer: "",
@@ -109,7 +113,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; no authorization",
-			reqBody: request.CreateHouse{
+			inputBody: inputBody{
 				Address:   "Ул Пушкина 1",
 				Year:      1999,
 				Developer: "",
@@ -140,7 +144,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; invalid authorization",
-			reqBody: request.CreateHouse{
+			inputBody: inputBody{
 				Address:   "Ул Пушкина 1",
 				Year:      1999,
 				Developer: "",
@@ -172,7 +176,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; address is required",
-			reqBody: request.CreateHouse{
+			inputBody: inputBody{
 				Year: 1999,
 			},
 			args: args{
@@ -197,7 +201,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; year is required",
-			reqBody: request.CreateHouse{
+			inputBody: inputBody{
 				Address: "Ул Пушкина 1",
 			},
 			args: args{
@@ -222,7 +226,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; house exists",
-			reqBody: request.CreateHouse{
+			inputBody: inputBody{
 				Address: "Ул Пушкина 1",
 				Year:    1999,
 			},
@@ -249,7 +253,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; internal server error",
-			reqBody: request.CreateHouse{
+			inputBody: inputBody{
 				Address: "Ул Пушкина 123",
 				Year:    1999,
 			},
@@ -290,6 +294,8 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 
 			services := &service.Services{House: houseService}
 
+			gin.SetMode(gin.ReleaseMode)
+			gin.DefaultWriter = io.Discard
 			router := gin.New()
 			houseGroup := router.Group("/v1/house")
 
@@ -297,18 +303,18 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 
 			newHouseRoutes(logger.NewDiscardLogger(), houseGroup, services.House, authMiddleware)
 
-			reqBody, err := json.Marshal(tt.reqBody)
+			reqBody, err := json.Marshal(tt.inputBody)
 			assert.NoError(t, err)
 
 			recorder := httptest.NewRecorder()
-			req := httptest.NewRequest(http.MethodPost, "/v1/house/create", bytes.NewBuffer(reqBody))
-			req.Header.Set("Content-Type", "application-json")
+			request := httptest.NewRequest(http.MethodPost, "/v1/house/create", bytes.NewBuffer(reqBody))
+			request.Header.Set("Content-Type", "application-json")
 
 			if tt.args.isAuth {
-				req.Header.Set("Authorization", tt.args.token)
+				request.Header.Set("Authorization", tt.args.token)
 			}
 
-			router.ServeHTTP(recorder, req)
+			router.ServeHTTP(recorder, request)
 
 			assert.Equal(t, tt.wantStatusCode, recorder.Code)
 		})
@@ -316,151 +322,5 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 }
 
 func TestHouseRoutes_GetHouseFlats(t *testing.T) {
-	type args struct {
-		houseID  string
-		userType string
-		userID   string
-		isAuth   bool
-		token    string
-		input    *service.GetHouseFlatsInput
-	}
 
-	type HouseBehavior func(m *mocks.MockHouse, args args)
-	type AuthBehavior func(m *mocks.MockAuth, args args)
-
-	testCases := []struct {
-		name              string
-		args              args
-		houseMockBehavior HouseBehavior
-		authMockBehavior  AuthBehavior
-		wantStatusCode    int
-	}{
-		{
-			name: "successful getting house flats; moderator",
-			args: args{
-				houseID:  "1",
-				userType: "moderator",
-				userID:   "test-uuid-id",
-				isAuth:   true,
-				token:    "Bearer test-token",
-				input: &service.GetHouseFlatsInput{
-					HouseID:  "1",
-					UserType: "moderator",
-				},
-			},
-			authMockBehavior: func(m *mocks.MockAuth, args args) {
-				m.EXPECT().ParseToken(gomock.Any()).Return(&service.TokenClaims{
-					UserType: args.userType,
-					UserID:   args.userID,
-				}, nil)
-			},
-			houseMockBehavior: func(m *mocks.MockHouse, args args) {
-				m.EXPECT().GetHouseFlats(gomock.Any(), args.input).Return([]entity.Flat{}, nil)
-			},
-			wantStatusCode: http.StatusOK,
-		},
-		{
-			name: "successful getting house flats; client",
-			args: args{
-				houseID:  "1",
-				userType: "client",
-				userID:   "test-uuid-id",
-				isAuth:   true,
-				token:    "Bearer test-token",
-				input: &service.GetHouseFlatsInput{
-					HouseID:  "1",
-					UserType: "client",
-				},
-			},
-			authMockBehavior: func(m *mocks.MockAuth, args args) {
-				m.EXPECT().ParseToken(gomock.Any()).Return(&service.TokenClaims{
-					UserType: args.userType,
-					UserID:   args.userID,
-				}, nil)
-			},
-			houseMockBehavior: func(m *mocks.MockHouse, args args) {
-				m.EXPECT().GetHouseFlats(gomock.Any(), args.input).Return([]entity.Flat{}, nil)
-			},
-			wantStatusCode: http.StatusOK,
-		},
-		{
-			name: "failed getting house flats; no authorization",
-			args: args{
-				houseID:  "1",
-				userType: "client",
-				userID:   "test-uuid-id",
-				isAuth:   false,
-				token:    "Bearer test-token",
-				input: &service.GetHouseFlatsInput{
-					HouseID:  "1",
-					UserType: "client",
-				},
-			},
-			authMockBehavior: func(m *mocks.MockAuth, args args) {
-				m.EXPECT().ParseToken(gomock.Any()).Return(&service.TokenClaims{
-					UserType: args.userType,
-					UserID:   args.userID,
-				}, nil)
-			},
-			houseMockBehavior: func(m *mocks.MockHouse, args args) {
-				m.EXPECT().GetHouseFlats(gomock.Any(), args.input).Return([]entity.Flat{}, nil).Times(0)
-			},
-			wantStatusCode: http.StatusUnauthorized,
-		},
-		{
-			name: "failed getting house flats; house not found",
-			args: args{
-				houseID:  "11",
-				userType: "client",
-				userID:   "test-uuid-id",
-				isAuth:   true,
-				token:    "Bearer test-token",
-				input: &service.GetHouseFlatsInput{
-					HouseID:  "11",
-					UserType: "client",
-				},
-			},
-			authMockBehavior: func(m *mocks.MockAuth, args args) {
-				m.EXPECT().ParseToken(gomock.Any()).Return(&service.TokenClaims{
-					UserType: args.userType,
-					UserID:   args.userID,
-				}, nil)
-			},
-			houseMockBehavior: func(m *mocks.MockHouse, args args) {
-				m.EXPECT().GetHouseFlats(gomock.Any(), args.input).Return(nil, service.ErrHouseNotFound)
-			},
-			wantStatusCode: http.StatusBadRequest,
-		},
-		{
-			name: "failed getting house flats; internal server error",
-			args: args{
-				houseID:  "1",
-				userType: "client",
-				userID:   "test-uuid-id",
-				isAuth:   true,
-				token:    "Bearer test-token",
-				input: &service.GetHouseFlatsInput{
-					HouseID:  "1",
-					UserType: "client",
-				},
-			},
-			authMockBehavior: func(m *mocks.MockAuth, args args) {
-				m.EXPECT().ParseToken(gomock.Any()).Return(&service.TokenClaims{
-					UserType: args.userType,
-					UserID:   args.userID,
-				}, nil)
-			},
-			houseMockBehavior: func(m *mocks.MockHouse, args args) {
-				m.EXPECT().GetHouseFlats(gomock.Any(), args.input).Return(nil, errors.New("some error"))
-			},
-			wantStatusCode: http.StatusInternalServerError,
-		},
-	}
-
-	for _, tt := range testCases {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-		})
-	}
 }
