@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/middleware"
+	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/request"
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/internal/service/mocks"
@@ -30,26 +31,20 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		token            string
 	}
 
-	type inputBody struct {
-		Address   string `json:"address" validate:"required"`
-		Year      uint   `json:"year" validate:"required"`
-		Developer string `json:"developer"`
-	}
-
 	type AuthMockBehaviour func(m *mocks.MockAuth, args args)
 	type HouseMockBehaviour func(m *mocks.MockHouse, args args)
 
 	testCases := []struct {
 		name              string
 		args              args
-		inputBody         inputBody
+		reqBody           request.CreateHouse
 		houseMockBehavior HouseMockBehaviour
 		authMockBehavior  AuthMockBehaviour
 		wantStatusCode    int
 	}{
 		{
 			name: "successful create",
-			inputBody: inputBody{
+			reqBody: request.CreateHouse{
 				Address:   "Ул Пушкина 1",
 				Year:      1999,
 				Developer: "",
@@ -81,7 +76,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; client user",
-			inputBody: inputBody{
+			reqBody: request.CreateHouse{
 				Address:   "Ул Пушкина 1",
 				Year:      1999,
 				Developer: "",
@@ -113,7 +108,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; no authorization",
-			inputBody: inputBody{
+			reqBody: request.CreateHouse{
 				Address:   "Ул Пушкина 1",
 				Year:      1999,
 				Developer: "",
@@ -144,7 +139,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; invalid authorization",
-			inputBody: inputBody{
+			reqBody: request.CreateHouse{
 				Address:   "Ул Пушкина 1",
 				Year:      1999,
 				Developer: "",
@@ -176,7 +171,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; address is required",
-			inputBody: inputBody{
+			reqBody: request.CreateHouse{
 				Year: 1999,
 			},
 			args: args{
@@ -201,7 +196,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; year is required",
-			inputBody: inputBody{
+			reqBody: request.CreateHouse{
 				Address: "Ул Пушкина 1",
 			},
 			args: args{
@@ -226,7 +221,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; house exists",
-			inputBody: inputBody{
+			reqBody: request.CreateHouse{
 				Address: "Ул Пушкина 1",
 				Year:    1999,
 			},
@@ -253,7 +248,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 		},
 		{
 			name: "failed create; internal server error",
-			inputBody: inputBody{
+			reqBody: request.CreateHouse{
 				Address: "Ул Пушкина 123",
 				Year:    1999,
 			},
@@ -303,18 +298,18 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 
 			newHouseRoutes(logger.NewDiscardLogger(), houseGroup, services.House, authMiddleware)
 
-			reqBody, err := json.Marshal(tt.inputBody)
+			reqBody, err := json.Marshal(tt.reqBody)
 			assert.NoError(t, err)
 
 			recorder := httptest.NewRecorder()
-			request := httptest.NewRequest(http.MethodPost, "/v1/house/create", bytes.NewBuffer(reqBody))
-			request.Header.Set("Content-Type", "application-json")
+			req := httptest.NewRequest(http.MethodPost, "/v1/house/create", bytes.NewBuffer(reqBody))
+			req.Header.Set("Content-Type", "application-json")
 
 			if tt.args.isAuth {
-				request.Header.Set("Authorization", tt.args.token)
+				req.Header.Set("Authorization", tt.args.token)
 			}
 
-			router.ServeHTTP(recorder, request)
+			router.ServeHTTP(recorder, req)
 
 			assert.Equal(t, tt.wantStatusCode, recorder.Code)
 		})
