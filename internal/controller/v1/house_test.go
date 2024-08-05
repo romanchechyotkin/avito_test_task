@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -293,6 +294,8 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 
 			services := &service.Services{House: houseService}
 
+			gin.SetMode(gin.ReleaseMode)
+			gin.DefaultWriter = io.Discard
 			router := gin.New()
 			houseGroup := router.Group("/v1/house")
 
