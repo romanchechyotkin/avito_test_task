@@ -3,6 +3,6 @@ package repoerrors
 import "errors"
 
 var (
-	ErrUserExists   = errors.New("user already exists")
-	ErrUserNotFound = errors.New("user not found")
+	ErrNotFound      = errors.New("not found")
+	ErrAlreadyExists = errors.New("already exists")
 )
