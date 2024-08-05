@@ -1,7 +1,7 @@
 # ESTATE MANAGEMENT SERVICE
 
 [![Build Status][ci-badge]][ci-runs]
-[![coverage][coverage-badge]]
+![coverage][coverage-badge]
 
 [ci-badge]:            https://github.com/romanchechyotkin/avito_test_task/actions/workflows/test.yaml/badge.svg
 [ci-runs]:             https://github.com/romanchechyotkin/avito_test_task/actions
