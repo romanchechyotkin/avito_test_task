@@ -14,7 +14,6 @@ import (
 type Config struct {
 	HTTP       `yaml:"http"`
 	Postgresql `yaml:"postgresql"`
-	AuthAPI    `yaml:"auth_api"`
 	JWT        `yaml:"jwt"`
 }
 
@@ -23,7 +22,6 @@ type HTTP struct {
 	Host string `yaml:"host" env:"HOST" env-default:"127.0.0.1"`
 }
 
-// todo 127.0.0.1 => 0.0.0.0
 type Postgresql struct {
 	User       string `yaml:"user" env:"PG_USER" env-default:"postgres"`
 	Password   string `yaml:"password" env:"PG_PASSWORD" env-default:"5432"`
@@ -32,10 +30,6 @@ type Postgresql struct {
 	Database   string `yaml:"database" env:"PG_DATABASE" env-default:"postgres"`
 	SSLMode    string `yaml:"ssl_mode" env:"PG_SSL" env-default:"disable"`
 	AutoCreate bool   `yaml:"auto_create" env:"PG_AUTO_CREATE" env-default:"true"`
-}
-
-type AuthAPI struct {
-	URL string `yaml:"url" env:"AUTH_API"`
 }
 
 type JWT struct {

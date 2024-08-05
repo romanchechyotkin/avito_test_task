@@ -3,10 +3,13 @@ package service
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log/slog"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
+	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 )
 
 type HouseService struct {
@@ -34,6 +37,11 @@ func (s *HouseService) CreateHouse(ctx context.Context, input *HouseCreateInput)
 		},
 	})
 	if err != nil {
+		if errors.Is(err, repoerrors.ErrAlreadyExists) {
+			return nil, ErrHouseExists
+		}
+
+		s.log.Error("failed to create house in database", logger.Error(err))
 		return nil, err
 	}
 
@@ -43,6 +51,10 @@ func (s *HouseService) CreateHouse(ctx context.Context, input *HouseCreateInput)
 func (s *HouseService) GetHouseFlats(ctx context.Context, input *GetHouseFlatsInput) ([]*entity.Flat, error) {
 	flats, err := s.flatRepo.GetHouseFlats(ctx, input.HouseID, input.UserType)
 	if err != nil {
+		if errors.Is(err, repoerrors.ErrNotFound) {
+			return nil, ErrHouseNotFound
+		}
+
 		return nil, err
 	}
 
@@ -52,6 +64,14 @@ func (s *HouseService) GetHouseFlats(ctx context.Context, input *GetHouseFlatsIn
 func (s *HouseService) CreateSubscription(ctx context.Context, input *CreateSubscriptionInput) error {
 	err := s.houseRepo.CreateSubscription(ctx, input.HouseID, input.UserID)
 	if err != nil {
+		if errors.Is(err, repoerrors.ErrNotFound) {
+			return ErrHouseNotFound
+		}
+
+		if errors.Is(err, repoerrors.ErrAlreadyExists) {
+			return ErrHouseSubscriptionExists
+		}
+
 		return err
 	}
 

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 
@@ -59,6 +60,14 @@ func (r *houseRoutes) createHouse(c *gin.Context) {
 		Developer: req.Developer,
 	})
 	if err != nil {
+		if errors.Is(err, service.ErrHouseExists) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+
+			return
+		}
+
 		r.log.Error("failed to create house", logger.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -88,6 +97,14 @@ func (r *houseRoutes) getHouseFlats(c *gin.Context) {
 		HouseID:  houseID,
 	})
 	if err != nil {
+		if errors.Is(err, service.ErrHouseNotFound) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+
+			return
+		}
+
 		r.log.Error("failed to get house flats", logger.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -97,8 +114,8 @@ func (r *houseRoutes) getHouseFlats(c *gin.Context) {
 	}
 
 	if len(flats) == 0 {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"data": "empty",
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "no flats found",
 		})
 
 		return
@@ -124,6 +141,14 @@ func (r *houseRoutes) subscribe(c *gin.Context) {
 		HouseID: houseID,
 		UserID:  userID.(string),
 	}); err != nil {
+		if errors.Is(err, service.ErrHouseNotFound) || errors.Is(err, service.ErrHouseSubscriptionExists) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+
+			return
+		}
+
 		r.log.Error("failed to create subscription", slog.String("house id", houseID), slog.String("userid", userID.(string)))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
