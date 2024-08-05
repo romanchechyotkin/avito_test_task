@@ -316,5 +316,151 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 }
 
 func TestHouseRoutes_GetHouseFlats(t *testing.T) {
+	type args struct {
+		houseID  string
+		userType string
+		userID   string
+		isAuth   bool
+		token    string
+		input    *service.GetHouseFlatsInput
+	}
 
+	type HouseBehavior func(m *mocks.MockHouse, args args)
+	type AuthBehavior func(m *mocks.MockAuth, args args)
+
+	testCases := []struct {
+		name              string
+		args              args
+		houseMockBehavior HouseBehavior
+		authMockBehavior  AuthBehavior
+		wantStatusCode    int
+	}{
+		{
+			name: "successful getting house flats; moderator",
+			args: args{
+				houseID:  "1",
+				userType: "moderator",
+				userID:   "test-uuid-id",
+				isAuth:   true,
+				token:    "Bearer test-token",
+				input: &service.GetHouseFlatsInput{
+					HouseID:  "1",
+					UserType: "moderator",
+				},
+			},
+			authMockBehavior: func(m *mocks.MockAuth, args args) {
+				m.EXPECT().ParseToken(gomock.Any()).Return(&service.TokenClaims{
+					UserType: args.userType,
+					UserID:   args.userID,
+				}, nil)
+			},
+			houseMockBehavior: func(m *mocks.MockHouse, args args) {
+				m.EXPECT().GetHouseFlats(gomock.Any(), args.input).Return([]entity.Flat{}, nil)
+			},
+			wantStatusCode: http.StatusOK,
+		},
+		{
+			name: "successful getting house flats; client",
+			args: args{
+				houseID:  "1",
+				userType: "client",
+				userID:   "test-uuid-id",
+				isAuth:   true,
+				token:    "Bearer test-token",
+				input: &service.GetHouseFlatsInput{
+					HouseID:  "1",
+					UserType: "client",
+				},
+			},
+			authMockBehavior: func(m *mocks.MockAuth, args args) {
+				m.EXPECT().ParseToken(gomock.Any()).Return(&service.TokenClaims{
+					UserType: args.userType,
+					UserID:   args.userID,
+				}, nil)
+			},
+			houseMockBehavior: func(m *mocks.MockHouse, args args) {
+				m.EXPECT().GetHouseFlats(gomock.Any(), args.input).Return([]entity.Flat{}, nil)
+			},
+			wantStatusCode: http.StatusOK,
+		},
+		{
+			name: "failed getting house flats; no authorization",
+			args: args{
+				houseID:  "1",
+				userType: "client",
+				userID:   "test-uuid-id",
+				isAuth:   false,
+				token:    "Bearer test-token",
+				input: &service.GetHouseFlatsInput{
+					HouseID:  "1",
+					UserType: "client",
+				},
+			},
+			authMockBehavior: func(m *mocks.MockAuth, args args) {
+				m.EXPECT().ParseToken(gomock.Any()).Return(&service.TokenClaims{
+					UserType: args.userType,
+					UserID:   args.userID,
+				}, nil)
+			},
+			houseMockBehavior: func(m *mocks.MockHouse, args args) {
+				m.EXPECT().GetHouseFlats(gomock.Any(), args.input).Return([]entity.Flat{}, nil).Times(0)
+			},
+			wantStatusCode: http.StatusUnauthorized,
+		},
+		{
+			name: "failed getting house flats; house not found",
+			args: args{
+				houseID:  "11",
+				userType: "client",
+				userID:   "test-uuid-id",
+				isAuth:   true,
+				token:    "Bearer test-token",
+				input: &service.GetHouseFlatsInput{
+					HouseID:  "11",
+					UserType: "client",
+				},
+			},
+			authMockBehavior: func(m *mocks.MockAuth, args args) {
+				m.EXPECT().ParseToken(gomock.Any()).Return(&service.TokenClaims{
+					UserType: args.userType,
+					UserID:   args.userID,
+				}, nil)
+			},
+			houseMockBehavior: func(m *mocks.MockHouse, args args) {
+				m.EXPECT().GetHouseFlats(gomock.Any(), args.input).Return(nil, service.ErrHouseNotFound)
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "failed getting house flats; internal server error",
+			args: args{
+				houseID:  "1",
+				userType: "client",
+				userID:   "test-uuid-id",
+				isAuth:   true,
+				token:    "Bearer test-token",
+				input: &service.GetHouseFlatsInput{
+					HouseID:  "1",
+					UserType: "client",
+				},
+			},
+			authMockBehavior: func(m *mocks.MockAuth, args args) {
+				m.EXPECT().ParseToken(gomock.Any()).Return(&service.TokenClaims{
+					UserType: args.userType,
+					UserID:   args.userID,
+				}, nil)
+			},
+			houseMockBehavior: func(m *mocks.MockHouse, args args) {
+				m.EXPECT().GetHouseFlats(gomock.Any(), args.input).Return(nil, errors.New("some error"))
+			},
+			wantStatusCode: http.StatusInternalServerError,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+		})
+	}
 }
