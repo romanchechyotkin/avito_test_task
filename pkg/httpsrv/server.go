@@ -25,7 +25,6 @@ type Server struct {
 }
 
 func New(log *slog.Logger, cfg *config.Config, router http.Handler) (*Server, error) {
-
 	srv := &Server{
 		log:    log,
 		cfg:    cfg,

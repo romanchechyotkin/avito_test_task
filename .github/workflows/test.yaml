@@ -30,6 +30,17 @@ jobs:
 
   integration-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.3
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 5432
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,12 +56,29 @@ jobs:
           go mod tidy
           go build ./...
 
-      - name: Test
-        run: CGO_ENABLED=1 go test ./... -v -race -tags=integration
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
 
+      - name: Test
+        env:
+          CONFIG_PATH: ${{ github.workspace }}/config.yaml
+        run: CGO_ENABLED=1 go test ./... -v -race -tags=integration
 
   coverage:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16.3
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 5432
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -67,8 +95,9 @@ jobs:
           go build ./...
 
       - name: Generate test coverage
-        run:
-          go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
+        env:
+          CONFIG_PATH: ${{ github.workspace }}/config.yaml
+        run: go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
 
       - name: Check test coverage
         uses: vladopajic/go-test-coverage@v2

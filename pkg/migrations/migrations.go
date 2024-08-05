@@ -11,19 +11,19 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
-func Migrate(log *slog.Logger, fs *embed.FS, dbUrl string) {
+func Migrate(log *slog.Logger, fs *embed.FS, dbUrl string) error {
 	source, err := iofs.New(fs, "migrations")
 	if err != nil {
 		log.Error("failed to read migrations source", logger.Error(err))
 
-		return
+		return err
 	}
 
 	instance, err := migrate.NewWithSourceInstance("iofs", source, makeMigrateUrl(dbUrl))
 	if err != nil {
 		log.Error("failed to initialization the migrations instance", logger.Error(err))
 
-		return
+		return err
 	}
 
 	err = instance.Up()
@@ -36,4 +36,6 @@ func Migrate(log *slog.Logger, fs *embed.FS, dbUrl string) {
 	default:
 		log.Error("could not apply the migration schema", logger.Error(err))
 	}
+
+	return err
 }

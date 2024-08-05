@@ -60,6 +60,7 @@ func New(log *slog.Logger) (*Config, error) {
 }
 
 func fetchConfigPath() string {
+
 	var path string
 	flag.StringVar(&path, "config", "", "sets path to config file")
 	flag.Parse()
