@@ -10,10 +10,6 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        flags: ['']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,15 +26,17 @@ jobs:
           go build ./...
 
       - name: Test
-        run: go test ./... -v
+        run: CGO_ENABLED=1 go test ./... -v -race
 
-      - name: Coverage
+      - name: Generate test coverage
+        run:
+          go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... ./...
+
+      - name: Check test coverage
         uses: vladopajic/go-test-coverage@v2
         with:
           profile: cover.out
           local-prefix: github.com/romanchechyotkin/avito_test_task
-        run:
-          go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... ./...
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
@@ -46,6 +44,5 @@ jobs:
           name: coverage
           path: |
             cover.out
-            cover_race.out
           if-no-files-found: error
           retention-days: 1
