@@ -28,6 +28,7 @@ func NewFlatService(log *slog.Logger, sendService Sender, flatRepo repo.Flat) *F
 }
 
 func (s *FlatService) CreateFlat(ctx context.Context, input *FlatCreateInput) (*entity.Flat, error) {
+	// todo make one line return
 	flat, err := s.flatRepo.CreateFlat(ctx, &entity.Flat{
 		Number:      input.Number,
 		HouseID:     input.HouseID,

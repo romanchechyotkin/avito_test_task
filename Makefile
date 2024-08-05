@@ -20,21 +20,6 @@ docs:
 .PHONY: gen
 gen: mock docs
 
-.PHONY: unit-test
-unit-test:
-	go test ./... -v -tags=unit
-
-.PHONY: integration-test
-integration-test:
-	go test ./... -v -tags=integration
-
-.PHONY: coverage
-coverage:
-	go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
-
 .PHONY: test
-test: unit-test integration-test
-
-.PHONY: swag
-swag:
-	swag init -g ./cmd/app/main.go -o ./docs --parseDependency --parseInternal;
+test:
+	go test ./... -v
