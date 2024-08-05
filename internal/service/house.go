@@ -55,6 +55,10 @@ func (s *HouseService) CreateHouse(ctx context.Context, input *HouseCreateInput)
 func (s *HouseService) GetHouseFlats(ctx context.Context, input *GetHouseFlatsInput) ([]*entity.Flat, error) {
 	flats, err := s.flatRepo.GetHouseFlats(ctx, input.HouseID, input.UserType)
 	if err != nil {
+		if errors.Is(err, repoerrors.ErrNotFound) {
+			return nil, ErrHouseNotFound
+		}
+
 		return nil, err
 	}
 

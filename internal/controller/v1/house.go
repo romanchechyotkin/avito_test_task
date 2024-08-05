@@ -32,15 +32,6 @@ func newHouseRoutes(log *slog.Logger, g *gin.RouterGroup, houseService service.H
 	g.POST("/:id/subscribe", authMiddleware.ClientsOnly(), r.subscribe)
 }
 
-// @Summary Create House
-// @Description Create House
-// @Tags house
-// @Accept json
-// @Produce json
-// @Param input body request.CreateHouse true "input"
-// @Success 201 {object} response.House
-// @Security JWT
-// @Router /v1/house/create [post]
 func (r *houseRoutes) createHouse(c *gin.Context) {
 	var req request.CreateHouse
 
@@ -88,15 +79,6 @@ func (r *houseRoutes) createHouse(c *gin.Context) {
 	c.JSON(http.StatusCreated, response.BuildHouse(house))
 }
 
-// @Summary Get House Flats
-// @Description Get House Flats
-// @Tags house
-// @Accept json
-// @Produce json
-// @Param id path string true "id"
-// @Success 200 {object} response.HouseFlats
-// @Security JWT
-// @Router /v1/house/{id} [get]
 func (r *houseRoutes) getHouseFlats(c *gin.Context) {
 	houseID := c.Param("id")
 
@@ -115,9 +97,9 @@ func (r *houseRoutes) getHouseFlats(c *gin.Context) {
 		HouseID:  houseID,
 	})
 	if err != nil {
-		if errors.Is(err, service.ErrHouseFlatsNotFound) {
+		if errors.Is(err, service.ErrHouseNotFound) {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "no flats found",
+				"error": err.Error(),
 			})
 
 			return
@@ -131,18 +113,17 @@ func (r *houseRoutes) getHouseFlats(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.HouseFlats{Flats: flats})
+	if len(flats) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "no flats found",
+		})
+
+		return
+	}
+
+	c.JSON(http.StatusOK, flats)
 }
 
-// @Summary Subscribe for house updates
-// @Description Subscribe for house updates
-// @Tags house
-// @Accept json
-// @Produce json
-// @Param id path string true "id"
-// @Success 204
-// @Security JWT
-// @Router /v1/house/{id}/subscribe [post]
 func (r *houseRoutes) subscribe(c *gin.Context) {
 	houseID := c.Param("id")
 
@@ -176,5 +157,7 @@ func (r *houseRoutes) subscribe(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusNoContent, nil)
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "created",
+	})
 }

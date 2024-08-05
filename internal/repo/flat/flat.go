@@ -155,6 +155,10 @@ func (r *Repo) GetHouseFlats(ctx context.Context, houseID, userType string) ([]*
 
 	rows, err := r.Pool.Query(ctx, q, houseID)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, repoerrors.ErrNotFound
+		}
+
 		return nil, err
 	}
 	defer rows.Close()

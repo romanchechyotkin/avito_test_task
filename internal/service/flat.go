@@ -9,7 +9,6 @@ import (
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
-	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 )
 
 type FlatService struct {
@@ -28,7 +27,6 @@ func NewFlatService(log *slog.Logger, sendService Sender, flatRepo repo.Flat) *F
 }
 
 func (s *FlatService) CreateFlat(ctx context.Context, input *FlatCreateInput) (*entity.Flat, error) {
-	// todo make one line return
 	flat, err := s.flatRepo.CreateFlat(ctx, &entity.Flat{
 		Number:      input.Number,
 		HouseID:     input.HouseID,
@@ -44,7 +42,6 @@ func (s *FlatService) CreateFlat(ctx context.Context, input *FlatCreateInput) (*
 			return nil, ErrFlatExists
 		}
 
-		s.log.Debug("failed to create flat in database", logger.Error(err))
 		return nil, err
 	}
 
@@ -61,19 +58,25 @@ func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*
 		return nil, err
 	}
 
+	// todo custom errors
+
 	if status == "created" && input.Status != "on moderation" {
-		return nil, ErrFlatNotOnModeration
+		return nil, errors.New("сначала надо взять квартиру на модерацию")
 	}
 
 	if status == "on moderation" && input.Status == "on moderation" {
-		return nil, ErrFlatOnModeration
+		return nil, errors.New("квартира уже на модерарации")
 	}
 
 	if status == "approved" || status == "declined" {
-		return nil, ErrFlatFinishedModeration
+		return nil, errors.New("квартира уже прошла модерарацию")
 	}
 
-	if input.Status == "created" || input.Status == "approved" || input.Status == "declined" {
+	if input.Status == "created" {
+		input.ModeratorID = ""
+	}
+
+	if input.Status == "approved" || input.Status == "declined" {
 		input.ModeratorID = ""
 	}
 
