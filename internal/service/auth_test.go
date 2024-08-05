@@ -15,19 +15,19 @@ import (
 	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"
 	"github.com/romanchechyotkin/avito_test_task/schema"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAuthService_CreateUser(t *testing.T) {
 	log := logger.New()
 
 	cfg, err := config.New(log)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	log.Debug("app configuration", slog.Any("cfg", cfg.Postgresql))
 
 	pg, err := postgresql.New(log, &cfg.Postgresql)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	defer pg.Close()
 
 	err = migrations.Migrate(log, &schema.DB, fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
@@ -38,7 +38,7 @@ func TestAuthService_CreateUser(t *testing.T) {
 		cfg.Postgresql.Database,
 		cfg.Postgresql.SSLMode,
 	))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	repositories := repo.NewRepositories(log, pg)
 
@@ -49,19 +49,19 @@ func TestAuthService_CreateUser(t *testing.T) {
 		Password: "test",
 		UserType: "test",
 	})
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	_, err = authService.CreateUser(context.Background(), &AuthCreateUserInput{
 		Email:    "test",
 		Password: "test",
 		UserType: "moderator",
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, err = authService.CreateUser(context.Background(), &AuthCreateUserInput{
 		Email:    "test",
 		Password: "test",
 		UserType: "moderator",
 	})
-	assert.ErrorIs(t, err, ErrUserExists)
+	require.ErrorIs(t, err, ErrUserExists)
 }
