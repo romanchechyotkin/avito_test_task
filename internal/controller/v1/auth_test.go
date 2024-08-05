@@ -2,13 +2,12 @@ package v1
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/request"
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/internal/service/mocks"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
@@ -20,14 +19,7 @@ import (
 
 func TestAuthRoutes_Registration(t *testing.T) {
 	type args struct {
-		ctx   context.Context
 		input *service.AuthCreateUserInput
-	}
-
-	type inputBody struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-		UserType string `json:"user_type"`
 	}
 
 	type MockBehaviour func(m *mocks.MockAuth, args args)
@@ -35,22 +27,21 @@ func TestAuthRoutes_Registration(t *testing.T) {
 	testCases := []struct {
 		name             string
 		args             args
-		inputBody        inputBody
+		reqBody          request.Registration
 		mockBehavior     MockBehaviour
 		wantStatusCode   int
-		wantResponseBody string // todo response struct
+		wantResponseBody string
 	}{
 		{
 			name: "successful registration",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthCreateUserInput{
 					Email:    "moderator@gmail.com",
 					Password: "123456",
 					UserType: "moderator",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Registration{
 				Email:    "moderator@gmail.com",
 				Password: "123456",
 				UserType: "moderator",
@@ -64,14 +55,13 @@ func TestAuthRoutes_Registration(t *testing.T) {
 		{
 			name: "failed registration; invalid email",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthCreateUserInput{
 					Email:    "moderator",
 					Password: "123456",
 					UserType: "moderator",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Registration{
 				Email:    "moderator",
 				Password: "123456",
 				UserType: "moderator",
@@ -84,14 +74,13 @@ func TestAuthRoutes_Registration(t *testing.T) {
 		{
 			name: "failed registration; short password length 3",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthCreateUserInput{
 					Email:    "moderator@gmail.com",
 					Password: "123",
 					UserType: "moderator",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Registration{
 				Email:    "moderator@gmail.com",
 				Password: "123",
 				UserType: "moderator",
@@ -104,14 +93,13 @@ func TestAuthRoutes_Registration(t *testing.T) {
 		{
 			name: "failed registration; long password length 51",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthCreateUserInput{
 					Email:    "moderator@gmail.com",
 					Password: "123456789012345678901234567890123456789012345678901",
 					UserType: "moderator",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Registration{
 				Email:    "moderator@gmail.com",
 				Password: "123456789012345678901234567890123456789012345678901",
 				UserType: "moderator",
@@ -124,14 +112,13 @@ func TestAuthRoutes_Registration(t *testing.T) {
 		{
 			name: "successful registration; min length password length 4",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthCreateUserInput{
 					Email:    "moderator@gmail.com",
 					Password: "1234",
 					UserType: "moderator",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Registration{
 				Email:    "moderator@gmail.com",
 				Password: "1234",
 				UserType: "moderator",
@@ -144,14 +131,13 @@ func TestAuthRoutes_Registration(t *testing.T) {
 		{
 			name: "successful registration; max length password length 50",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthCreateUserInput{
 					Email:    "moderator@gmail.com",
 					Password: "12345678901234567890123456789012345678901234567890",
 					UserType: "moderator",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Registration{
 				Email:    "moderator@gmail.com",
 				Password: "12345678901234567890123456789012345678901234567890",
 				UserType: "moderator",
@@ -164,13 +150,12 @@ func TestAuthRoutes_Registration(t *testing.T) {
 		{
 			name: "failed registration; email is required",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthCreateUserInput{
 					Password: "123456",
 					UserType: "client",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Registration{
 				Password: "123456",
 				UserType: "client",
 			},
@@ -182,13 +167,12 @@ func TestAuthRoutes_Registration(t *testing.T) {
 		{
 			name: "failed registration; password is required",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthCreateUserInput{
 					Email:    "moderator@gmail.com",
 					UserType: "client",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Registration{
 				Email:    "moderator@gmail.com",
 				UserType: "client",
 			},
@@ -200,13 +184,12 @@ func TestAuthRoutes_Registration(t *testing.T) {
 		{
 			name: "failed registration; user type is required",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthCreateUserInput{
 					Email:    "moderator@gmail.com",
 					Password: "123456",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Registration{
 				Email:    "moderator@gmail.com",
 				Password: "123456",
 			},
@@ -228,21 +211,19 @@ func TestAuthRoutes_Registration(t *testing.T) {
 			tt.mockBehavior(authService, tt.args)
 			services := &service.Services{Auth: authService}
 
-			gin.SetMode(gin.ReleaseMode)
-			gin.DefaultWriter = io.Discard
 			router := gin.New()
 			authGroup := router.Group("/auth")
 
 			newAuthRoutes(logger.NewDiscardLogger(), authGroup, services.Auth)
 
-			reqBody, err := json.Marshal(tt.inputBody)
+			body, err := json.Marshal(tt.reqBody)
 			assert.NoError(t, err)
 
 			recorder := httptest.NewRecorder()
-			request := httptest.NewRequest(http.MethodPost, "/auth/register", bytes.NewBuffer(reqBody))
-			request.Header.Set("Content-Type", "application-json")
+			req := httptest.NewRequest(http.MethodPost, "/auth/register", bytes.NewBuffer(body))
+			req.Header.Set("Content-Type", "application-json")
 
-			router.ServeHTTP(recorder, request)
+			router.ServeHTTP(recorder, req)
 
 			assert.Equal(t, tt.wantStatusCode, recorder.Code)
 		})
@@ -251,72 +232,61 @@ func TestAuthRoutes_Registration(t *testing.T) {
 
 func TestAuthRoutes_Login(t *testing.T) {
 	type args struct {
-		ctx   context.Context
 		input *service.AuthGenerateTokenInput
-	}
-
-	type inputBody struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
 	}
 
 	type MockBehaviour func(m *mocks.MockAuth, args args)
 
 	testCases := []struct {
-		name             string
-		args             args
-		inputBody        inputBody
-		mockBehavior     MockBehaviour
-		wantStatusCode   int
-		wantResponseBody string // todo response struct
+		name           string
+		args           args
+		reqBody        request.Login
+		mockBehavior   MockBehaviour
+		wantStatusCode int
 	}{
 		{
 			name: "successful login",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthGenerateTokenInput{
 					Email:    "moderator@gmail.com",
 					Password: "123456",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Login{
 				Email:    "moderator@gmail.com",
 				Password: "123456",
 			},
 			mockBehavior: func(m *mocks.MockAuth, args args) {
 				m.EXPECT().GenerateToken(gomock.Any(), args.input).Return("test-token", nil)
 			},
-			wantStatusCode:   http.StatusOK,
-			wantResponseBody: `{"token": "test-token"}`,
+			wantStatusCode: http.StatusOK,
 		},
 		{
 			name: "failed login; invalid email",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthGenerateTokenInput{
 					Email:    "moderator",
 					Password: "123456",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Login{
 				Email:    "moderator",
 				Password: "123456",
 			},
 			mockBehavior: func(m *mocks.MockAuth, args args) {
-				m.EXPECT().GenerateToken(gomock.Any(), args.input).Return("", nil).Times(0) // todo return error
+				m.EXPECT().GenerateToken(gomock.Any(), args.input).Return("", nil).Times(0)
 			},
 			wantStatusCode: http.StatusBadRequest,
 		},
 		{
 			name: "failed login; short password length 3",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthGenerateTokenInput{
 					Email:    "moderator@gmail.com",
 					Password: "123",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Login{
 				Email:    "moderator@gmail.com",
 				Password: "123",
 			},
@@ -328,13 +298,12 @@ func TestAuthRoutes_Login(t *testing.T) {
 		{
 			name: "failed login; long password length 51",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthGenerateTokenInput{
 					Email:    "moderator@gmail.com",
 					Password: "123456789012345678901234567890123456789012345678901",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Login{
 				Email:    "moderator@gmail.com",
 				Password: "123456789012345678901234567890123456789012345678901",
 			},
@@ -346,13 +315,12 @@ func TestAuthRoutes_Login(t *testing.T) {
 		{
 			name: "successful login; min length password length 4",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthGenerateTokenInput{
 					Email:    "moderator@gmail.com",
 					Password: "1234",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Login{
 				Email:    "moderator@gmail.com",
 				Password: "1234",
 			},
@@ -364,13 +332,12 @@ func TestAuthRoutes_Login(t *testing.T) {
 		{
 			name: "successful login; max length password length 50",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthGenerateTokenInput{
 					Email:    "moderator@gmail.com",
 					Password: "12345678901234567890123456789012345678901234567890",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Login{
 				Email:    "moderator@gmail.com",
 				Password: "12345678901234567890123456789012345678901234567890",
 			},
@@ -382,12 +349,11 @@ func TestAuthRoutes_Login(t *testing.T) {
 		{
 			name: "failed login; email is required",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthGenerateTokenInput{
 					Password: "123456",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Login{
 				Password: "123456",
 			},
 			mockBehavior: func(m *mocks.MockAuth, args args) {
@@ -398,16 +364,49 @@ func TestAuthRoutes_Login(t *testing.T) {
 		{
 			name: "failed login; password is required",
 			args: args{
-				ctx: context.Background(),
 				input: &service.AuthGenerateTokenInput{
 					Email: "moderator@gmail.com",
 				},
 			},
-			inputBody: inputBody{
+			reqBody: request.Login{
 				Email: "moderator@gmail.com",
 			},
 			mockBehavior: func(m *mocks.MockAuth, args args) {
 				m.EXPECT().GenerateToken(gomock.Any(), args.input).Return("", nil).Times(0)
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "failed login; wrong password",
+			args: args{
+				input: &service.AuthGenerateTokenInput{
+					Email:    "moderator@gmail.com",
+					Password: "123123213",
+				},
+			},
+			reqBody: request.Login{
+				Email:    "moderator@gmail.com",
+				Password: "123123213",
+			},
+			mockBehavior: func(m *mocks.MockAuth, args args) {
+				m.EXPECT().GenerateToken(gomock.Any(), args.input).Return("", service.ErrWrongPassword)
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
+		{
+			name: "failed login; wrong email",
+			args: args{
+				input: &service.AuthGenerateTokenInput{
+					Email:    "123@gmail.com",
+					Password: "12312321313",
+				},
+			},
+			reqBody: request.Login{
+				Email:    "123@gmail.com",
+				Password: "12312321313",
+			},
+			mockBehavior: func(m *mocks.MockAuth, args args) {
+				m.EXPECT().GenerateToken(gomock.Any(), args.input).Return("", service.ErrUserNotFound)
 			},
 			wantStatusCode: http.StatusBadRequest,
 		},
@@ -424,21 +423,19 @@ func TestAuthRoutes_Login(t *testing.T) {
 			tt.mockBehavior(authService, tt.args)
 			services := &service.Services{Auth: authService}
 
-			gin.SetMode(gin.ReleaseMode)
-			gin.DefaultWriter = io.Discard
 			router := gin.New()
 			authGroup := router.Group("/auth")
 
 			newAuthRoutes(logger.NewDiscardLogger(), authGroup, services.Auth)
 
-			reqBody, err := json.Marshal(tt.inputBody)
+			body, err := json.Marshal(tt.reqBody)
 			assert.NoError(t, err)
 
 			recorder := httptest.NewRecorder()
-			request := httptest.NewRequest(http.MethodPost, "/auth/login", bytes.NewBuffer(reqBody))
-			request.Header.Set("Content-Type", "application-json")
+			req := httptest.NewRequest(http.MethodPost, "/auth/login", bytes.NewBuffer(body))
+			req.Header.Set("Content-Type", "application-json")
 
-			router.ServeHTTP(recorder, request)
+			router.ServeHTTP(recorder, req)
 
 			assert.Equal(t, tt.wantStatusCode, recorder.Code)
 		})
