@@ -198,6 +198,21 @@ func TestAuthRoutes_Registration(t *testing.T) {
 			},
 			wantStatusCode: http.StatusBadRequest,
 		},
+		{
+			name: "failed registration; invalid user type",
+			args: args{
+				input: &service.AuthCreateUserInput{},
+			},
+			reqBody: request.Registration{
+				Email:    "operator@gmail.com",
+				Password: "123456",
+				UserType: "operator",
+			},
+			mockBehavior: func(m *mocks.MockAuth, args args) {
+				m.EXPECT().CreateUser(gomock.Any(), args.input).Return("", nil).Times(0) // todo return error
+			},
+			wantStatusCode: http.StatusBadRequest,
+		},
 	}
 
 	for _, tt := range testCases {
