@@ -20,6 +20,17 @@ docs:
 .PHONY: gen
 gen: mock docs
 
+.PHONY: unit-test
+unit-test:
+	go test ./... -v -tags=unit
+
+.PHONY: integration-test
+integration-test:
+	go test ./... -v -tags=integration
+
+.PHONY: coverage
+coverage:
+	go test -coverprofile=coverage.out ./... -tags=unit,integration inte
+
 .PHONY: test
-test:
-	go test -covermode=atomic -v -coverpkg=./... ./...
+test: unit-test integration-test
