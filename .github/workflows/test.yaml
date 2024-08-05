@@ -25,7 +25,9 @@ jobs:
           cache: true
 
       - name: build
-        run: go build ./...
+        run: |
+          go mod tidy
+          go build ./...
 
       - name: test
         run: go test -coverprofile=profile.out -covermode=atomic -v -coverpkg=./... ./...
