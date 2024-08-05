@@ -38,6 +38,12 @@ type JWT struct {
 }
 
 func New(log *slog.Logger) (*Config, error) {
+	getwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	log.Debug("pwd", getwd)
+
 	path := fetchConfigPath()
 	if path == "" {
 		log.Error("config path is empty")
@@ -51,7 +57,7 @@ func New(log *slog.Logger) (*Config, error) {
 
 	var cfg Config
 
-	err := cleanenv.ReadConfig(path, &cfg)
+	err = cleanenv.ReadConfig(path, &cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -60,6 +66,7 @@ func New(log *slog.Logger) (*Config, error) {
 }
 
 func fetchConfigPath() string {
+
 	var path string
 	flag.StringVar(&path, "config", "", "sets path to config file")
 	flag.Parse()
