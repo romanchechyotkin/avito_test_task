@@ -61,24 +61,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client
 
-      - name: Print current directory
-        run: pwd
-
-      - name: List files
-        run: ls -la
-
       - name: Test
         env:
-          CONFIG_PATH: ./avito_test_task/config.yaml
-          PG_USER: postgres
-        run: |
-          echo "Using CONFIG_PATH: $CONFIG_PATH"
-          ls -la ./avito_test_task/
-          # Your test command here
-
-      - name: Test
-        env:
-          CONFIG_PATH: ./avito_test_task/config.yaml
+          CONFIG_PATH: ${GITHUB_WORKSPACE}/config.yaml
           PG_USER: postgres
           PG_PASSWORD: 5432
           PG_HOST: postgres
@@ -109,7 +94,7 @@ jobs:
 
       - name: Generate test coverage
         env:
-          CONFIG_PATH: config.yaml
+          CONFIG_PATH: ${GITHUB_WORKSPACE}/config.yaml
           PG_USER: postgres
           PG_PASSWORD: 5432
           PG_HOST: postgres
