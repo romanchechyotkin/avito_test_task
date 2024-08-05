@@ -14,8 +14,8 @@ import (
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/internal/service/mocks"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
-	"github.com/romanchechyotkin/avito_test_task/pkg/utils"
 
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
@@ -288,7 +288,7 @@ func TestHouseRoutes_CreateHouse(t *testing.T) {
 
 			services := &service.Services{House: houseService}
 
-			router := utils.NewTestRouter()
+			router := gin.New()
 			houseGroup := router.Group("/v1/house")
 
 			authMiddleware := middleware.NewAuthMiddleware(authService)

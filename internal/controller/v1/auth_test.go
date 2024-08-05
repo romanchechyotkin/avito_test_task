@@ -11,8 +11,8 @@ import (
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/internal/service/mocks"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
-	"github.com/romanchechyotkin/avito_test_task/pkg/utils"
 
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
@@ -211,7 +211,7 @@ func TestAuthRoutes_Registration(t *testing.T) {
 			tt.mockBehavior(authService, tt.args)
 			services := &service.Services{Auth: authService}
 
-			router := utils.NewTestRouter()
+			router := gin.New()
 			authGroup := router.Group("/auth")
 
 			newAuthRoutes(logger.NewDiscardLogger(), authGroup, services.Auth)
@@ -423,7 +423,7 @@ func TestAuthRoutes_Login(t *testing.T) {
 			tt.mockBehavior(authService, tt.args)
 			services := &service.Services{Auth: authService}
 
-			router := utils.NewTestRouter()
+			router := gin.New()
 			authGroup := router.Group("/auth")
 
 			newAuthRoutes(logger.NewDiscardLogger(), authGroup, services.Auth)
