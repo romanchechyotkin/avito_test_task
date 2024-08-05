@@ -6,14 +6,13 @@ import (
 	"log/slog"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
+	"github.com/romanchechyotkin/avito_test_task/internal/repo/codes"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
 	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 )
-
-const UniqueConstraintCode = "23505"
 
 type Repo struct {
 	log *slog.Logger
@@ -36,8 +35,8 @@ func (r *Repo) CreateUser(ctx context.Context, user *entity.User) (string, error
 	if err := r.Pool.QueryRow(ctx, q, user.Email, user.Password, user.UserType).Scan(&id); err != nil {
 		var pgErr *pgconn.PgError
 		if ok := errors.As(err, &pgErr); ok {
-			if pgErr.Code == UniqueConstraintCode {
-				return "", repoerrors.ErrUserExists
+			if pgErr.Code == codes.UniqueConstraintCode {
+				return "", repoerrors.ErrAlreadyExists
 			}
 		}
 
@@ -62,7 +61,7 @@ func (r *Repo) GetByEmail(ctx context.Context, email string) (*entity.User, erro
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, repoerrors.ErrUserNotFound
+			return nil, repoerrors.ErrNotFound
 		}
 
 		return nil, err
@@ -86,7 +85,7 @@ func (r *Repo) GetById(ctx context.Context, id int) (*entity.User, error) {
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, repoerrors.ErrUserNotFound
+			return nil, repoerrors.ErrNotFound
 		}
 
 		return nil, err

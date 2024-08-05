@@ -53,8 +53,8 @@ func (s *AuthService) CreateUser(ctx context.Context, input *AuthCreateUserInput
 
 	userID, err := s.userRepo.CreateUser(ctx, user)
 	if err != nil {
-		if errors.Is(err, repoerrors.ErrUserExists) {
-			return "", err
+		if errors.Is(err, repoerrors.ErrAlreadyExists) {
+			return "", ErrUserExists
 		}
 
 		s.log.Error("failed to create user in database", logger.Error(err))
@@ -67,8 +67,8 @@ func (s *AuthService) CreateUser(ctx context.Context, input *AuthCreateUserInput
 func (s *AuthService) GenerateToken(ctx context.Context, input *AuthGenerateTokenInput) (string, error) {
 	user, err := s.userRepo.GetByEmail(ctx, input.Email)
 	if err != nil {
-		if errors.Is(err, repoerrors.ErrUserNotFound) {
-			return "", err
+		if errors.Is(err, repoerrors.ErrNotFound) {
+			return "", ErrUserNotFound
 		}
 
 		s.log.Error("failed to get user by email", logger.Error(err))

@@ -8,7 +8,10 @@ run: build
 
 .PHONY: mock
 mock:
-	go generate internal/service/service.go
+	go run go.uber.org/mock/mockgen@latest \
+		-source internal/service/service.go \
+		-destination internal/service/mocks/mocks.go \
+		-package mocks
 
 .PHONY: docs
 docs:
@@ -16,3 +19,7 @@ docs:
 
 .PHONY: gen
 gen: mock docs
+
+.PHONY: test
+test:
+	go test ./... -v
