@@ -86,8 +86,9 @@ jobs:
           PG_DATABASE: postgres
           PG_SSL: disable
           PG_AUTO_CREATE: true
-        run: CGO_ENABLED=1 go test ./... -v -race -tags=integration
-
+        run: |
+          echo "Using CONFIG_PATH: $CONFIG_PATH"
+          CGO_ENABLED=1 go test ./... -v -race -tags=integration
 
   coverage:
     runs-on: ubuntu-latest
@@ -106,24 +107,9 @@ jobs:
           go mod tidy
           go build ./...
 
-      - name: Print current directory
-        run: pwd
-
-      - name: List files
-        run: ls -la
-
-      - name: Test
-        env:
-          CONFIG_PATH: ./avito_test_task/config.yaml
-          PG_USER: postgres
-        run: |
-          echo "Using CONFIG_PATH: $CONFIG_PATH"
-          ls -la ./avito_test_task/
-          # Your test command here
-
       - name: Generate test coverage
         env:
-          CONFIG_PATH: ./avito_test_task/config.yaml
+          CONFIG_PATH: config.yaml
           PG_USER: postgres
           PG_PASSWORD: 5432
           PG_HOST: postgres
@@ -131,7 +117,8 @@ jobs:
           PG_DATABASE: postgres
           PG_SSL: disable
           PG_AUTO_CREATE: true
-        run:
+        run: |
+          echo "Using CONFIG_PATH: $CONFIG_PATH"
           go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
 
       - name: Check test coverage
