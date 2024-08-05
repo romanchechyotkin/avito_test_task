@@ -61,6 +61,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client
 
+      - name: Print current directory
+        run: pwd
+
+      - name: List files
+        run: ls -la
+
+      - name: Test
+        env:
+          CONFIG_PATH: ./avito_test_task/config.yaml
+          PG_USER: postgres
+        run: |
+          echo "Using CONFIG_PATH: $CONFIG_PATH"
+          ls -la ./avito_test_task/
+          # Your test command here
+
       - name: Test
         env:
           CONFIG_PATH: ./avito_test_task/config.yaml
@@ -90,6 +105,21 @@ jobs:
         run: |
           go mod tidy
           go build ./...
+
+      - name: Print current directory
+        run: pwd
+
+      - name: List files
+        run: ls -la
+
+      - name: Test
+        env:
+          CONFIG_PATH: ./avito_test_task/config.yaml
+          PG_USER: postgres
+        run: |
+          echo "Using CONFIG_PATH: $CONFIG_PATH"
+          ls -la ./avito_test_task/
+          # Your test command here
 
       - name: Generate test coverage
         env:
