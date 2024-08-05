@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -15,8 +14,8 @@ import (
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 	"github.com/romanchechyotkin/avito_test_task/internal/service/mocks"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
+	"github.com/romanchechyotkin/avito_test_task/pkg/utils"
 
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
@@ -466,9 +465,7 @@ func TestFlatRoutes_CreateFlat(t *testing.T) {
 
 			services := &service.Services{Flat: flatService}
 
-			gin.SetMode(gin.ReleaseMode)
-			gin.DefaultWriter = io.Discard
-			router := gin.New()
+			router := utils.NewTestRouter()
 			houseGroup := router.Group("/v1/flat")
 
 			authMiddleware := middleware.NewAuthMiddleware(authService)
