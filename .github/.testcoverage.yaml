@@ -1,0 +1,13 @@
+profile: cover.out
+local-prefix: "github.com/github.com/romanchechyotkin/avito_test_task"
+#threshold:
+#  file: 100
+#  total: 95
+#override:
+#  - threshold: 85
+#    path: badgestorer/cdn.go$
+#  - threshold: 50
+#    path: badgestorer/github.go$
+#exclude:
+#  paths:
+#    - main\.go$
