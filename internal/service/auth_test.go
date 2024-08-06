@@ -10,10 +10,9 @@ import (
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
 	"github.com/romanchechyotkin/avito_test_task/pkg/utest"
+
 	"github.com/stretchr/testify/require"
 )
-
-var log, cfg, pg, prepareErr = utest.Prepare()
 
 func TestAuthService_CreateUser(t *testing.T) {
 	require.NoError(t, prepareErr)
