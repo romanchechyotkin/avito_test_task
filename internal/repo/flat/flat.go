@@ -181,9 +181,5 @@ func (r *Repo) GetHouseFlats(ctx context.Context, houseID, userType string) ([]*
 		flats = append(flats, &flat)
 	}
 
-	if len(flats) == 0 {
-		return nil, repoerrors.ErrNotFound
-	}
-
 	return flats, nil
 }

@@ -122,7 +122,7 @@ func TestHouseService_GetHouseFlats(t *testing.T) {
 			HouseID:  fmt.Sprintf("%d", houseID),
 			UserType: "client",
 		})
-		require.ErrorIs(t, err, ErrHouseNotFound)
+		require.ErrorIs(t, err, ErrHouseFlatsNotFound)
 		require.Equal(t, ([]*entity.Flat)(nil), houseFlats)
 	})
 
