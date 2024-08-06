@@ -4,50 +4,22 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"github.com/romanchechyotkin/avito_test_task/pkg/utest"
 	"log/slog"
 	"testing"
 
-	"github.com/romanchechyotkin/avito_test_task/internal/config"
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
-	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
-	"github.com/romanchechyotkin/avito_test_task/pkg/migrations"
-	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"
-	"github.com/romanchechyotkin/avito_test_task/schema"
-
 	"github.com/stretchr/testify/require"
 )
 
-var (
-	log    = logger.New()
-	cfg, _ = config.New(log)
-)
-
 func TestAuthService_CreateUser(t *testing.T) {
+	log, cfg, pg, err := utest.Prepare()
+	require.NoError(t, err)
+
 	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
-	pg, err := postgresql.New(log, &cfg.Postgresql)
-	require.NoError(t, err)
-
-	defer func() {
-		exec, err := pg.Pool.Exec(context.Background(), "TRUNCATE TABLE users CASCADE")
-		if err != nil {
-			log.Error("failed to truncate users table", logger.Error(err))
-			return
-		}
-		log.Debug("truncated users table", slog.Int64("rows affected", exec.RowsAffected()))
-	}()
-
-	err = migrations.Migrate(log, &schema.DB, fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		cfg.Postgresql.User,
-		cfg.Postgresql.Password,
-		cfg.Postgresql.Host,
-		cfg.Postgresql.Port,
-		cfg.Postgresql.Database,
-		cfg.Postgresql.SSLMode,
-	))
-	require.NoError(t, err)
+	defer utest.TeardownTable(log, pg, "users")
 
 	repositories := repo.NewRepositories(log, pg)
 
@@ -95,29 +67,12 @@ func TestAuthService_CreateUser(t *testing.T) {
 }
 
 func TestAuthService_GenerateToken_ParseToken(t *testing.T) {
+	log, cfg, pg, err := utest.Prepare()
+	require.NoError(t, err)
+
 	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
-	pg, err := postgresql.New(log, &cfg.Postgresql)
-	require.NoError(t, err)
-
-	defer func() {
-		exec, err := pg.Pool.Exec(context.Background(), "TRUNCATE TABLE users CASCADE")
-		if err != nil {
-			log.Error("failed to truncate users table", logger.Error(err))
-			return
-		}
-		log.Debug("truncated users table", slog.Int64("rows affected", exec.RowsAffected()))
-	}()
-
-	err = migrations.Migrate(log, &schema.DB, fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		cfg.Postgresql.User,
-		cfg.Postgresql.Password,
-		cfg.Postgresql.Host,
-		cfg.Postgresql.Port,
-		cfg.Postgresql.Database,
-		cfg.Postgresql.SSLMode,
-	))
-	require.NoError(t, err)
+	defer utest.TeardownTable(log, pg, "users")
 
 	repositories := repo.NewRepositories(log, pg)
 
