@@ -30,7 +30,7 @@ func TestAuthService_CreateUser(t *testing.T) {
 	require.NoError(t, err)
 
 	defer func() {
-		exec, err := pg.Pool.Exec(context.Background(), "TRUNCATE TABLE users")
+		exec, err := pg.Pool.Exec(context.Background(), "TRUNCATE TABLE users CASCADE")
 		if err != nil {
 			log.Error("failed to truncate users table", logger.Error(err))
 			return
