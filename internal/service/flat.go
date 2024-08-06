@@ -60,25 +60,19 @@ func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*
 		return nil, err
 	}
 
-	// todo custom errors
-
 	if status == "created" && input.Status != "on moderation" {
-		return nil, errors.New("сначала надо взять квартиру на модерацию")
+		return nil, ErrFlatNotOnModeration
 	}
 
 	if status == "on moderation" && input.Status == "on moderation" {
-		return nil, errors.New("квартира уже на модерарации")
+		return nil, ErrFlatOnModeration
 	}
 
 	if status == "approved" || status == "declined" {
-		return nil, errors.New("квартира уже прошла модерарацию")
+		return nil, ErrFlatFinishedModeration
 	}
 
-	if input.Status == "created" {
-		input.ModeratorID = ""
-	}
-
-	if input.Status == "approved" || input.Status == "declined" {
+	if input.Status == "created" || input.Status == "approved" || input.Status == "declined" {
 		input.ModeratorID = ""
 	}
 
