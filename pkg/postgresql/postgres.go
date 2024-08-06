@@ -28,6 +28,7 @@ type PgxPool interface {
 }
 
 type Postgres struct {
+	log  *slog.Logger
 	Pool PgxPool
 }
 
@@ -75,6 +76,7 @@ func New(log *slog.Logger, cfg *config.Postgresql) (*Postgres, error) {
 	}
 
 	return &Postgres{
+		log:  log,
 		Pool: conn,
 	}, conn.Ping(ctx)
 }
