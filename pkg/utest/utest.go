@@ -44,8 +44,8 @@ func Prepare() (*slog.Logger, *config.Config, *postgresql.Postgres, error) {
 func TeardownTable(log *slog.Logger, pg *postgresql.Postgres, tableName string) {
 	exec, err := pg.Pool.Exec(context.Background(), fmt.Sprintf("TRUNCATE TABLE %s CASCADE", tableName))
 	if err != nil {
-		log.Error("failed to truncate users table", logger.Error(err))
+		log.Error("failed to truncate table", slog.String("table", tableName), slog.String("query", "TRUNCATE"), logger.Error(err))
 		return
 	}
-	log.Debug("truncated users table", slog.Int64("rows affected", exec.RowsAffected()))
+	log.Debug("truncated table", slog.String("table", tableName), slog.Int64("rows affected", exec.RowsAffected()))
 }

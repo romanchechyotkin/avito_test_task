@@ -28,6 +28,10 @@ func NewHouseService(log *slog.Logger, houseRepo repo.House, flatRepo repo.Flat)
 }
 
 func (s *HouseService) CreateHouse(ctx context.Context, input *HouseCreateInput) (*entity.House, error) {
+	if input.Address == "" {
+		return nil, ErrInvalidInputData
+	}
+
 	house, err := s.houseRepo.CreateHouse(ctx, &entity.House{
 		Address: input.Address,
 		Year:    input.Year,
