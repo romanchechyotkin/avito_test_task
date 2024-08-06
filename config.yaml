@@ -6,10 +6,10 @@ postgresql:
   password:
   host:
   port:
-  database: estate_service
+  database:
   ssl_mode:
   auto_create:
 jwt:
-  sign_key: secret
+  sign_key:
   token_ttl: 60m
 
