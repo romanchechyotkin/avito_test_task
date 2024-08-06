@@ -144,4 +144,9 @@ func TestAuthService_GenerateToken_ParseToken(t *testing.T) {
 		require.Equal(t, "", generatedToken)
 	})
 
+	t.Run("parsing invalid token", func(t *testing.T) {
+		_, err := authService.ParseToken("invalid")
+		require.ErrorIs(t, err, ErrParseToken)
+	})
+
 }

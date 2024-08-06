@@ -40,10 +40,6 @@ type JWT struct {
 
 func New(log *slog.Logger) (*Config, error) {
 	path := fetchConfigPath()
-	if path == "" {
-		log.Error("config path is empty")
-		os.Exit(1)
-	}
 
 	if _, err := os.Stat(path); err != nil {
 		log.Error("failed to open config file", logger.Error(err))
