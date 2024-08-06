@@ -9,6 +9,7 @@ import (
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
+	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 )
 
 type FlatService struct {
@@ -42,6 +43,7 @@ func (s *FlatService) CreateFlat(ctx context.Context, input *FlatCreateInput) (*
 			return nil, ErrFlatExists
 		}
 
+		s.log.Debug("failed to create flat in database", logger.Error(err))
 		return nil, err
 	}
 
