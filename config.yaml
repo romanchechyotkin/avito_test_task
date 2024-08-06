@@ -10,6 +10,6 @@ postgresql:
   ssl_mode:
   auto_create:
 jwt:
-  sign_key: secret # provide as env var
+  sign_key: secret
   token_ttl: 60m
 
