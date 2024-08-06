@@ -29,7 +29,14 @@ func TestAuthService_CreateUser(t *testing.T) {
 	pg, err := postgresql.New(log, &cfg.Postgresql)
 	require.NoError(t, err)
 
-	defer pg.Teardown(cfg.Database)
+	defer func() {
+		exec, err := pg.Pool.Exec(context.Background(), "TRUNCATE TABLE users")
+		if err != nil {
+			log.Error("failed to truncate users table", logger.Error(err))
+			return
+		}
+		log.Debug("truncated users table", slog.Any("exec", exec))
+	}()
 
 	err = migrations.Migrate(log, &schema.DB, fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.Postgresql.User,

@@ -81,21 +81,6 @@ func New(log *slog.Logger, cfg *config.Postgresql) (*Postgres, error) {
 	}, conn.Ping(ctx)
 }
 
-func (p *Postgres) Teardown(databaseName string) {
-	if p.Pool == nil {
-		return
-	}
-
-	exec, err := p.Pool.Exec(context.Background(), fmt.Sprintf("DROP DATABASE %s", databaseName))
-	if err != nil {
-		p.log.Error("failed to drop database", logger.Error(err))
-		return
-	}
-	p.log.Debug("dropped database", slog.Int64("exec", exec.RowsAffected()))
-
-	p.Pool.Close()
-}
-
 func (p *Postgres) Close() {
 	if p.Pool != nil {
 		p.Pool.Close()
