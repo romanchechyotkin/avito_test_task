@@ -155,11 +155,6 @@ func (r *Repo) GetHouseFlats(ctx context.Context, houseID, userType string) ([]*
 
 	rows, err := r.Pool.Query(ctx, q, houseID)
 	if err != nil {
-		r.log.Debug("failed to query rows", logger.Error(err))
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, repoerrors.ErrNotFound
-		}
-
 		return nil, err
 	}
 	defer rows.Close()
@@ -184,6 +179,10 @@ func (r *Repo) GetHouseFlats(ctx context.Context, houseID, userType string) ([]*
 		}
 
 		flats = append(flats, &flat)
+	}
+
+	if len(flats) == 0 {
+		return nil, repoerrors.ErrNotFound
 	}
 
 	return flats, nil
