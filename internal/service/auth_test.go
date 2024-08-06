@@ -28,7 +28,8 @@ func TestAuthService_CreateUser(t *testing.T) {
 
 	pg, err := postgresql.New(log, &cfg.Postgresql)
 	require.NoError(t, err)
-	defer pg.Close()
+
+	defer pg.Teardown(cfg.Database)
 
 	err = migrations.Migrate(log, &schema.DB, fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.Postgresql.User,
@@ -44,27 +45,47 @@ func TestAuthService_CreateUser(t *testing.T) {
 
 	authService := NewAuthService(log, repositories.User, cfg.JWT.SignKey, cfg.JWT.TokenTTL)
 
-	log.Debug("creating invalid user")
-	_, err = authService.CreateUser(context.Background(), &AuthCreateUserInput{
-		Email:    "test",
-		Password: "test",
-		UserType: "test",
-	})
-	require.Error(t, err)
+	t.Run("create user", func(t *testing.T) {
+		log.Debug("creating invalid user")
+		userID, err := authService.CreateUser(context.Background(), &AuthCreateUserInput{
+			Email:    "test",
+			Password: "test",
+			UserType: "test",
+		})
+		require.Error(t, err)
+		require.Equal(t, "", userID)
 
-	log.Debug("creating correct user")
-	_, err = authService.CreateUser(context.Background(), &AuthCreateUserInput{
-		Email:    "test",
-		Password: "test",
-		UserType: "moderator",
-	})
-	require.NoError(t, err)
+		log.Debug("creating correct user")
+		userID, err = authService.CreateUser(context.Background(), &AuthCreateUserInput{
+			Email:    "test",
+			Password: "test",
+			UserType: "moderator",
+		})
+		require.NoError(t, err)
+		require.True(t, len(userID) > 0)
 
-	log.Debug("creating existing user")
-	_, err = authService.CreateUser(context.Background(), &AuthCreateUserInput{
-		Email:    "test",
-		Password: "test",
-		UserType: "moderator",
+		log.Debug("creating existing user")
+		userID, err = authService.CreateUser(context.Background(), &AuthCreateUserInput{
+			Email:    "test",
+			Password: "test",
+			UserType: "moderator",
+		})
+		require.ErrorIs(t, err, ErrUserExists)
+		require.Equal(t, "", userID)
 	})
-	require.ErrorIs(t, err, ErrUserExists)
+
+	t.Run("create user with empty password", func(t *testing.T) {
+		log.Debug("creating user with empty password")
+		userID, err := authService.CreateUser(context.Background(), &AuthCreateUserInput{
+			Email:    "test",
+			Password: "",
+			UserType: "moderator",
+		})
+		require.Error(t, err)
+		require.Equal(t, "", userID)
+	})
+}
+
+func TestAuthService_GenerateToken(t *testing.T) {
+
 }
