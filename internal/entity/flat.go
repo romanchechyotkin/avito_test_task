@@ -5,12 +5,12 @@ import (
 )
 
 type Flat struct {
-	ID               uint      `json:"id" db:"id"`
-	Number           uint      `json:"number" db:"number"`
-	HouseID          uint      `json:"house_id" db:"address"`
-	Price            uint      `json:"price" db:"price"`
-	RoomsAmount      uint      `json:"rooms_amount" db:"rooms_amount"`
-	ModerationStatus string    `json:"moderation_status" db:"moderation_status"`
-	CreatedAt        time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at" db:"updated_at"`
+	ID               uint      `db:"id"`
+	Number           uint      `db:"number"`
+	HouseID          uint      `db:"address"`
+	Price            uint      `db:"price"`
+	RoomsAmount      uint      `db:"rooms_amount"`
+	ModerationStatus string    `db:"moderation_status"`
+	CreatedAt        time.Time `db:"created_at"`
+	UpdatedAt        time.Time `db:"updated_at"`
 }
