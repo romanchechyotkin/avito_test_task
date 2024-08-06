@@ -15,7 +15,7 @@ mock:
 
 .PHONY: docs
 docs:
-	echo docs
+	swag init -g ./cmd/app/main.go -o ./docs --parseDependency --parseInternal
 
 .PHONY: gen
 gen: mock docs
@@ -32,9 +32,13 @@ integration-test:
 coverage:
 	go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
 
+.PHONY: coverage-html
+coverage-html: coverage
+	go tool cover -html=cover.out
+
 .PHONY: test
 test: unit-test integration-test
 
-.PHONY: swag
-swag:
-	swag init -g ./cmd/app/main.go -o ./docs --parseDependency --parseInternal;
+.PHONY: compose-up
+compose-up:
+	docker compose up --build
