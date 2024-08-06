@@ -4,18 +4,19 @@ package service
 
 import (
 	"context"
-	"github.com/romanchechyotkin/avito_test_task/pkg/utest"
 	"log/slog"
 	"testing"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
+	"github.com/romanchechyotkin/avito_test_task/pkg/utest"
 	"github.com/stretchr/testify/require"
 )
 
+var log, cfg, pg, prepareErr = utest.Prepare()
+
 func TestAuthService_CreateUser(t *testing.T) {
-	log, cfg, pg, err := utest.Prepare()
-	require.NoError(t, err)
+	require.NoError(t, prepareErr)
 
 	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
@@ -67,8 +68,7 @@ func TestAuthService_CreateUser(t *testing.T) {
 }
 
 func TestAuthService_GenerateToken_ParseToken(t *testing.T) {
-	log, cfg, pg, err := utest.Prepare()
-	require.NoError(t, err)
+	require.NoError(t, prepareErr)
 
 	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
