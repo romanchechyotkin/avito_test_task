@@ -92,7 +92,10 @@ jobs:
       - name: Generate test coverage
         env:
           CONFIG_PATH: ${{ github.workspace }}/config.yaml
-        run: go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
+        run: |
+          make coverage
+          make coverage-html
+          go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
 
       - name: Check test coverage
         uses: vladopajic/go-test-coverage@v2
@@ -108,5 +111,6 @@ jobs:
           name: coverage
           path: |
             cover.out
+            cover.html
           if-no-files-found: error
           retention-days: 1
