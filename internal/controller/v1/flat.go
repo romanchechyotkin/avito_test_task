@@ -2,6 +2,7 @@ package v1
 
 import (
 	"errors"
+	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/response"
 	"log/slog"
 	"net/http"
 
@@ -30,6 +31,15 @@ func newFlatRoutes(log *slog.Logger, g *gin.RouterGroup, flatService service.Fla
 	g.PATCH("/update", authMiddleware.ModeratorsOnly(), r.updateFlat)
 }
 
+// @Summary Create Flat
+// @Description Create Flat
+// @Tags flat
+// @Accept json
+// @Produce json
+// @Param input body request.CreateFlat true "input"
+// @Success 201 {object} response.Flat
+// @Security JWT
+// @Router /v1/flat/create [post]
 func (r *flatRoutes) createFlat(c *gin.Context) {
 	var req request.CreateFlat
 
@@ -75,9 +85,18 @@ func (r *flatRoutes) createFlat(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, flat)
+	c.JSON(http.StatusCreated, response.BuildFlat(flat))
 }
 
+// @Summary Update Flat
+// @Description Update Flat
+// @Tags flat
+// @Accept json
+// @Produce json
+// @Param input body request.UpdateFlat true "input"
+// @Success 200 {object} response.Flat
+// @Security JWT
+// @Router /v1/flat/update [post]
 func (r *flatRoutes) updateFlat(c *gin.Context) {
 	var req request.UpdateFlat
 
@@ -132,5 +151,5 @@ func (r *flatRoutes) updateFlat(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, flat)
+	c.JSON(http.StatusOK, response.BuildFlat(flat))
 }

@@ -26,11 +26,19 @@ func newAuthRoutes(log *slog.Logger, g *gin.RouterGroup, authService service.Aut
 		authService: authService,
 	}
 
-	g.POST("/register", r.Registration)
-	g.POST("/login", r.Login)
+	g.POST("/register", r.registration)
+	g.POST("/login", r.login)
 }
 
-func (r *authRoutes) Registration(c *gin.Context) {
+// @Summary Registration
+// @Description Registration
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body request.Registration true "input"
+// @Success 201 {object} response.Registration
+// @Router /auth/register [post]
+func (r *authRoutes) registration(c *gin.Context) {
 	var req request.Registration
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -78,7 +86,15 @@ func (r *authRoutes) Registration(c *gin.Context) {
 	})
 }
 
-func (r *authRoutes) Login(c *gin.Context) {
+// @Summary Login
+// @Description Login
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body request.Login true "input"
+// @Success 201 {object} response.Login
+// @Router /auth/login [post]
+func (r *authRoutes) login(c *gin.Context) {
 	var req request.Login
 
 	if err := c.ShouldBindJSON(&req); err != nil {

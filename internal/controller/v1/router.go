@@ -4,15 +4,20 @@ import (
 	"log/slog"
 	"net/http"
 
+	_ "github.com/romanchechyotkin/avito_test_task/docs"
 	"github.com/romanchechyotkin/avito_test_task/internal/controller/v1/middleware"
 	"github.com/romanchechyotkin/avito_test_task/internal/service"
 
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services) {
 	router.Use(middleware.CORS())
 	router.Use(middleware.Log(log))
+
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	authMiddleware := middleware.NewAuthMiddleware(services.Auth)
 
