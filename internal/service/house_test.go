@@ -30,6 +30,7 @@ func TestHouseService_CreateHouse(t *testing.T) {
 			Address: "Улица Пушкина 1",
 			Year:    1999,
 		})
+		log.Debug("created house", slog.Any("house", house))
 		require.NoError(t, err)
 		require.Equal(t, "", house.Developer.String)
 	})
@@ -40,6 +41,7 @@ func TestHouseService_CreateHouse(t *testing.T) {
 			Address: "Улица Пушкина 1",
 			Year:    2004,
 		})
+		log.Debug("created house", slog.Any("house", house))
 		require.ErrorIs(t, err, ErrHouseExists)
 		require.Equal(t, nil, house)
 	})
@@ -51,6 +53,7 @@ func TestHouseService_CreateHouse(t *testing.T) {
 			Year:      2004,
 			Developer: "OOO builders",
 		})
+		log.Debug("created house", slog.Any("house", house))
 		require.NoError(t, err)
 		require.Equal(t, "OOO builders", house.Developer.String)
 	})
@@ -60,6 +63,7 @@ func TestHouseService_CreateHouse(t *testing.T) {
 		house, err := houseService.CreateHouse(context.Background(), &HouseCreateInput{
 			Developer: "OOO builders",
 		})
+		log.Debug("created house", slog.Any("house", house))
 		require.Error(t, err)
 		require.Equal(t, nil, house)
 	})
