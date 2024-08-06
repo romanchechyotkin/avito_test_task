@@ -19,12 +19,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var cfg, _ = config.New(logger.New())
+var (
+	log    = logger.New()
+	cfg, _ = config.New(log)
+)
 
 func TestAuthService_CreateUser(t *testing.T) {
-	log := logger.New()
-
-	log.Debug("app configuration", slog.Any("cfg", cfg.Postgresql))
+	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
 	pg, err := postgresql.New(log, &cfg.Postgresql)
 	require.NoError(t, err)
@@ -94,9 +95,7 @@ func TestAuthService_CreateUser(t *testing.T) {
 }
 
 func TestAuthService_GenerateToken_ParseToken(t *testing.T) {
-	log := logger.New()
-
-	log.Debug("app configuration", slog.Any("cfg", cfg.Postgresql))
+	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
 	pg, err := postgresql.New(log, &cfg.Postgresql)
 	require.NoError(t, err)
