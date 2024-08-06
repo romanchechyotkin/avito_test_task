@@ -12,4 +12,3 @@ postgresql:
 jwt:
   sign_key:
   token_ttl: 60m
-

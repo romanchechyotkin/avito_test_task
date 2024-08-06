@@ -13,8 +13,10 @@ func New() *slog.Logger {
 
 	if env := os.Getenv("APP_ENV"); env == "prod" {
 		handler = prodHandler()
-	} else {
+	} else if env == "dev" {
 		handler = devHandler()
+	} else {
+		return slog.Default()
 	}
 
 	return slog.New(handler)

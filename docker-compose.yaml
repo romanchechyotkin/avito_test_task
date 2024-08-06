@@ -23,6 +23,7 @@ services:
     env_file:
       - .env
     environment:
+      APP_ENV: prod
       HOST: 0.0.0.0
       PORT: 8080
       PG_USER: postgres
