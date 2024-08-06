@@ -106,7 +106,7 @@ func TestHouseService_GetHouseFlats(t *testing.T) {
 			HouseID:  fmt.Sprintf("%d", house.ID),
 			UserType: "client",
 		})
-		require.NoError(t, err)
+		require.ErrorIs(t, err, ErrHouseFlatsNotFound)
 		require.Equal(t, 0, len(houseFlats))
 
 		houseFlats, err = houseService.GetHouseFlats(context.Background(), &GetHouseFlatsInput{
