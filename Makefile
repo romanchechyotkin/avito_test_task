@@ -34,7 +34,7 @@ coverage:
 
 .PHONY: coverage-html
 coverage-html: coverage
-	go tool cover -html=cover.out
+	go tool cover -html=cover.out -o cover.html
 
 .PHONY: test
 test: unit-test integration-test
