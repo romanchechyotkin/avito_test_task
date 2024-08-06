@@ -11,7 +11,6 @@ import (
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
 	"github.com/romanchechyotkin/avito_test_task/pkg/utest"
 
-	"github.com/docker/distribution/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -127,9 +126,15 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 	repositories := repo.NewRepositories(log, pg)
 
 	houseService := NewHouseService(log, repositories.House, repositories.Flat)
+	authService := NewAuthService(log, repositories.User, cfg.JWT.SignKey, cfg.JWT.TokenTTL)
 	flatService := NewFlatService(log, NewSenderService(log, repositories.House), repositories.Flat)
 
-	modearorID := uuid.Generate().String()
+	moderatorID, err := authService.CreateUser(context.Background(), &AuthCreateUserInput{
+		Email:    "test",
+		Password: "1234",
+		UserType: "moderator",
+	})
+	require.NoError(t, err)
 
 	house, err := houseService.CreateHouse(context.Background(), &HouseCreateInput{
 		Address: "Улица Пушкина 1",
@@ -153,7 +158,7 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 		updatedFlat, err := flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
 			ID:          flat.ID + 1,
 			Status:      "on moderation",
-			ModeratorID: modearorID,
+			ModeratorID: moderatorID,
 		})
 		require.ErrorIs(t, err, ErrFlatNotFound)
 		require.Equal(t, (*entity.Flat)(nil), updatedFlat)
@@ -173,7 +178,7 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 		updatedFlat, err := flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
 			ID:          flat.ID,
 			Status:      "approved",
-			ModeratorID: modearorID,
+			ModeratorID: moderatorID,
 		})
 		require.Error(t, err, ErrFlatNotOnModeration)
 		require.Equal(t, (*entity.Flat)(nil), updatedFlat)
@@ -183,7 +188,7 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 		updatedFlat, err := flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
 			ID:          flat.ID,
 			Status:      "declined",
-			ModeratorID: modearorID,
+			ModeratorID: moderatorID,
 		})
 		require.Error(t, err, ErrFlatNotOnModeration)
 		require.Equal(t, (*entity.Flat)(nil), updatedFlat)
@@ -193,7 +198,7 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 		updatedFlat, err := flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
 			ID:          flat.ID,
 			Status:      "on moderation",
-			ModeratorID: modearorID,
+			ModeratorID: moderatorID,
 		})
 		require.NoError(t, err)
 		require.Equal(t, "on moderation", updatedFlat.ModerationStatus)
@@ -203,7 +208,7 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 		updatedFlat, err := flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
 			ID:          flat.ID,
 			Status:      "on moderation",
-			ModeratorID: modearorID,
+			ModeratorID: moderatorID,
 		})
 		require.Error(t, err, ErrFlatOnModeration)
 		require.Equal(t, (*entity.Flat)(nil), updatedFlat)
@@ -213,7 +218,7 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 		updatedFlat, err := flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
 			ID:          flat.ID,
 			Status:      "created",
-			ModeratorID: modearorID,
+			ModeratorID: moderatorID,
 		})
 		require.NoError(t, err)
 		require.Equal(t, "created", updatedFlat.ModerationStatus)
@@ -223,7 +228,7 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 		updatedFlat, err := flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
 			ID:          flat.ID,
 			Status:      "on moderation",
-			ModeratorID: modearorID,
+			ModeratorID: moderatorID,
 		})
 		require.NoError(t, err)
 		require.Equal(t, "on moderation", updatedFlat.ModerationStatus)
@@ -231,7 +236,7 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 		updatedFlat, err = flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
 			ID:          flat.ID,
 			Status:      "approved",
-			ModeratorID: modearorID,
+			ModeratorID: moderatorID,
 		})
 		require.NoError(t, err)
 		require.Equal(t, "approved", updatedFlat.ModerationStatus)
@@ -241,7 +246,7 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 		updatedFlat, err := flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
 			ID:          flat.ID,
 			Status:      "declined",
-			ModeratorID: modearorID,
+			ModeratorID: moderatorID,
 		})
 		require.ErrorIs(t, err, ErrFlatFinishedModeration)
 		require.Equal(t, (*entity.Flat)(nil), updatedFlat)
