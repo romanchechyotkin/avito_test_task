@@ -15,7 +15,7 @@ mock:
 
 .PHONY: docs
 docs:
-	echo docs
+	swag init -g ./cmd/app/main.go -o ./docs --parseDependency --parseInternal
 
 .PHONY: gen
 gen: mock docs
@@ -34,7 +34,3 @@ coverage:
 
 .PHONY: test
 test: unit-test integration-test
-
-.PHONY: swag
-swag:
-	swag init -g ./cmd/app/main.go -o ./docs --parseDependency --parseInternal;
