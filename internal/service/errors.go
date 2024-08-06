@@ -13,8 +13,9 @@ var (
 	ErrHouseExists      = errors.New("house already exists")
 	ErrHouseNotFound    = errors.New("house not found")
 
-	ErrFlatExists   = errors.New("flat already exists")
-	ErrFlatNotFound = errors.New("flat not found")
+	ErrFlatExists         = errors.New("flat already exists")
+	ErrFlatNotFound       = errors.New("flat not found")
+	ErrHouseFlatsNotFound = errors.New("house flats not found")
 
 	ErrHouseSubscriptionExists = errors.New("house subscription already exists")
 )

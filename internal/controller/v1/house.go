@@ -97,9 +97,9 @@ func (r *houseRoutes) getHouseFlats(c *gin.Context) {
 		HouseID:  houseID,
 	})
 	if err != nil {
-		if errors.Is(err, service.ErrHouseNotFound) {
+		if errors.Is(err, service.ErrHouseFlatsNotFound) {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+				"error": "no flats found",
 			})
 
 			return
@@ -108,14 +108,6 @@ func (r *houseRoutes) getHouseFlats(c *gin.Context) {
 		r.log.Error("failed to get house flats", logger.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
-		})
-
-		return
-	}
-
-	if len(flats) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "no flats found",
 		})
 
 		return
