@@ -86,7 +86,7 @@ func (p *Postgres) Teardown(databaseName string) {
 		return
 	}
 
-	exec, err := p.Pool.Exec(context.Background(), "DROP DATABASE $1", databaseName)
+	exec, err := p.Pool.Exec(context.Background(), fmt.Sprintf("DROP DATABASE %s", databaseName))
 	if err != nil {
 		p.log.Error("failed to drop database", logger.Error(err))
 		return
