@@ -15,17 +15,24 @@ services:
     ports:
       - "5432:5432"
 
-#  service:
-#    container_name: service
-#    build:
-#      context: .
-#    restart: always
-#    environment:
-#      - PG_HOST=postgres
-#    volumes:
-#      - ./data://usr/local/bin/data
-#      - ./config.yaml:/usr/local/bin/config.yaml
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - postgres
+  service:
+    container_name: service
+    build:
+      context: .
+    restart: always
+    env_file:
+      - .env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8080
+      PG_USER: postgres
+      PG_PASSWORD: 5432
+      PG_HOST: postgres
+      PG_PORT: 5432
+      PG_DATABASE: estate_service
+    volumes:
+      - ./config.yaml:/app/config.yaml
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres

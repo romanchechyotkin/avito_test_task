@@ -32,5 +32,13 @@ integration-test:
 coverage:
 	go test -coverprofile=cover.out -covermode=atomic -v -coverpkg=./... -tags=unit,integration ./...
 
+.PHONY: coverage-html
+coverage-html: coverage
+	go tool cover -html=cover.out
+
 .PHONY: test
 test: unit-test integration-test
+
+.PHONY: compose-up
+compose-up:
+	docker compose up --build
