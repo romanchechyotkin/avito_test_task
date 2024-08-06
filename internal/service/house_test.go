@@ -59,10 +59,9 @@ func TestHouseService_CreateHouse(t *testing.T) {
 	t.Run("creating house without address and year", func(t *testing.T) {
 		log.Debug("creating new unique house")
 		house, err := houseService.CreateHouse(context.Background(), &HouseCreateInput{
-			Address:   *(*string)(nil),
 			Developer: "OOO builders",
 		})
-		require.Error(t, err)
+		require.ErrorIs(t, err, ErrInvalidInputData)
 		require.Equal(t, (*entity.House)(nil), house)
 	})
 }
