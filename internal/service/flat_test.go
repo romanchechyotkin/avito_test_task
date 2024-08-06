@@ -174,6 +174,16 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 		require.Equal(t, (*entity.Flat)(nil), updatedFlat)
 	})
 
+	t.Run("failed update flat; wrong moderation status", func(t *testing.T) {
+		updatedFlat, err := flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
+			ID:          flat.ID,
+			Status:      "moderation",
+			ModeratorID: moderatorID,
+		})
+		require.Error(t, err)
+		require.Equal(t, (*entity.Flat)(nil), updatedFlat)
+	})
+
 	t.Run("failed update flat; approved status not allowed from created", func(t *testing.T) {
 		updatedFlat, err := flatService.UpdateFlat(context.Background(), &FlatUpdateInput{
 			ID:          flat.ID,
