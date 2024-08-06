@@ -3,10 +3,11 @@ package utest
 import (
 	"context"
 	"fmt"
+	"log/slog"
+
 	"github.com/romanchechyotkin/avito_test_task/internal/config"
 	"github.com/romanchechyotkin/avito_test_task/pkg/migrations"
 	"github.com/romanchechyotkin/avito_test_task/schema"
-	"log/slog"
 
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 	"github.com/romanchechyotkin/avito_test_task/pkg/postgresql"

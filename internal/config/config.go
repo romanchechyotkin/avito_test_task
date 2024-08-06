@@ -1,7 +1,6 @@
 package config
 
 import (
-	"flag"
 	"log/slog"
 	"os"
 	"time"
@@ -10,6 +9,8 @@ import (
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
+
+const defaultConfigFile = "config.yaml"
 
 type Config struct {
 	HTTP       `yaml:"http"`
@@ -60,13 +61,10 @@ func New(log *slog.Logger) (*Config, error) {
 }
 
 func fetchConfigPath() string {
-
 	var path string
-	flag.StringVar(&path, "config", "", "sets path to config file")
-	flag.Parse()
 
-	if path == "" {
-		path = os.Getenv("CONFIG_PATH")
+	if path = os.Getenv("CONFIG_PATH"); path == "" {
+		path = defaultConfigFile
 	}
 
 	return path
