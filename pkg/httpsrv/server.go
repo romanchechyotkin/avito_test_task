@@ -25,6 +25,8 @@ type Server struct {
 }
 
 func New(log *slog.Logger, cfg *config.Config, router http.Handler) *Server {
+	log = log.With(slog.String("component", "http server"))
+
 	srv := &Server{
 		log:    log,
 		cfg:    cfg,
@@ -54,6 +56,7 @@ func (srv *Server) Notify() <-chan error {
 }
 
 func (srv *Server) Shutdown() error {
+	srv.log.Debug("shutdown http server")
 	ctx, cancel := context.WithTimeout(context.Background(), defaultShutdownTimeout)
 	defer cancel()
 

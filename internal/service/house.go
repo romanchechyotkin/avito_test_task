@@ -20,6 +20,8 @@ type HouseService struct {
 }
 
 func NewHouseService(log *slog.Logger, houseRepo repo.House, flatRepo repo.Flat) *HouseService {
+	log = log.With(slog.String("component", "house service"))
+
 	return &HouseService{
 		log:       log,
 		houseRepo: houseRepo,

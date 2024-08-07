@@ -22,6 +22,8 @@ type flatRoutes struct {
 }
 
 func newFlatRoutes(log *slog.Logger, g *gin.RouterGroup, flatService service.Flat, authMiddleware *middleware.AuthMiddleware) {
+	log = log.With(slog.String("component", "flat routes"))
+
 	r := &flatRoutes{
 		log:         log,
 		flatService: flatService,

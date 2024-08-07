@@ -22,6 +22,8 @@ type houseRoutes struct {
 }
 
 func newHouseRoutes(log *slog.Logger, g *gin.RouterGroup, houseService service.House, authMiddleware *middleware.AuthMiddleware) {
+	log = log.With(slog.String("component", "house routes"))
+
 	r := &houseRoutes{
 		log:          log,
 		houseService: houseService,

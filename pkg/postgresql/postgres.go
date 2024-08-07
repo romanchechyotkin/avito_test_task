@@ -33,6 +33,8 @@ type Postgres struct {
 }
 
 func New(log *slog.Logger, cfg *config.Postgresql) (*Postgres, error) {
+	log = log.With(slog.String("component", "postgresql"))
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 
@@ -82,6 +84,7 @@ func New(log *slog.Logger, cfg *config.Postgresql) (*Postgres, error) {
 }
 
 func (p *Postgres) Close() {
+	p.log.Debug("close postgres connection")
 	if p.Pool != nil {
 		p.Pool.Close()
 	}

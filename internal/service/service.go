@@ -10,7 +10,7 @@ import (
 )
 
 type Sender interface {
-	Notify() chan<- uint
+	Send() chan<- uint
 }
 
 type AuthCreateUserInput struct {

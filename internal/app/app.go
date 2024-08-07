@@ -72,4 +72,12 @@ func Run() {
 	case err = <-server.Notify():
 		log.Error("app - Run - httpServer.Notify", logger.Error(err))
 	}
+
+	services.Sender.(*service.SenderService).Notify() <- struct{}{}
+
+	if err = server.Shutdown(); err != nil {
+		log.Error("failed to shutdown http server", logger.Error(err))
+	}
+
+	postgres.Close()
 }

@@ -17,18 +17,21 @@ type SendEmailInput struct {
 	Message   string
 }
 
-// todo close chan
 type SenderService struct {
 	log *slog.Logger
 
-	notifyChan chan uint
+	sendChan   chan uint
+	notifyChan chan struct{}
 	houseRepo  repo.House
 }
 
 func NewSenderService(log *slog.Logger, houseRepo repo.House) *SenderService {
+	log = log.With(slog.String("component", "sender service"))
+
 	service := &SenderService{
 		log:        log,
-		notifyChan: make(chan uint),
+		notifyChan: make(chan struct{}),
+		sendChan:   make(chan uint),
 		houseRepo:  houseRepo,
 	}
 
@@ -38,48 +41,53 @@ func NewSenderService(log *slog.Logger, houseRepo repo.House) *SenderService {
 }
 
 func (s *SenderService) Run() {
-	for houseID := range s.notifyChan {
-		s.log.Debug("got request to send", slog.Any("house id", houseID))
+	for {
+		select {
+		case _, ok := <-s.notifyChan:
+			if !ok {
+				s.log.Debug("notify channel is closed")
+				return
+			}
 
-		emailsToSend, err := s.houseRepo.GetHouseSubscriptions(context.Background(), houseID)
-		if err != nil {
-			s.log.Error("failed to get emails to send", logger.Error(err))
-			s.notifyChan <- houseID
-			continue
+			s.log.Debug("got request to stop sending")
+			close(s.sendChan)
+			close(s.notifyChan)
+			return
+
+		case houseID, ok := <-s.sendChan:
+			if !ok {
+				s.log.Debug("send channel is closed")
+				return
+			}
+			s.log.Debug("got request to send", slog.Any("house id", houseID))
+
+			emailsToSend, err := s.houseRepo.GetHouseSubscriptions(context.Background(), houseID)
+			if err != nil {
+				s.log.Error("failed to get emails to send", logger.Error(err))
+				s.sendChan <- houseID
+				continue
+			}
+
+			var wg sync.WaitGroup
+
+			for _, email := range emailsToSend {
+				wg.Add(1)
+
+				go func(email string) {
+					defer wg.Done()
+
+					s.log.Debug("sent email", slog.String("email", email))
+
+					err = s.sendEmail(context.Background(), email, "MESSAGE")
+					if err != nil {
+						return
+					}
+				}(email)
+			}
+
+			wg.Wait()
 		}
-
-		var wg sync.WaitGroup
-
-		for _, email := range emailsToSend {
-			wg.Add(1)
-
-			go func(email string) {
-				defer wg.Done()
-
-				s.log.Debug("sent email", slog.String("email", email))
-
-				err = s.sendEmail(context.Background(), email, "MESSAGE")
-				if err != nil {
-					// todo append in slice to repeat infinity times
-					return
-				}
-			}(email)
-		}
-
-		wg.Wait()
 	}
-
-	//for {
-	//	select {
-	//	case houseID, ok := <-s.notifyChan:
-	//		if !ok {
-	//			s.log.Debug("notify channel is closed")
-	//			return
-	//		}
-	//
-	//
-	//	}
-	//}
 }
 
 func (s *SenderService) sendEmail(ctx context.Context, recipient string, message string) error {
@@ -96,6 +104,10 @@ func (s *SenderService) sendEmail(ctx context.Context, recipient string, message
 	return nil
 }
 
-func (s *SenderService) Notify() chan<- uint {
+func (s *SenderService) Send() chan<- uint {
+	return s.sendChan
+}
+
+func (s *SenderService) Notify() chan<- struct{} {
 	return s.notifyChan
 }

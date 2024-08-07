@@ -21,6 +21,8 @@ type authRoutes struct {
 }
 
 func newAuthRoutes(log *slog.Logger, g *gin.RouterGroup, authService service.Auth) {
+	log = log.With(slog.String("component", "auth routes"))
+
 	r := &authRoutes{
 		log:         log,
 		authService: authService,

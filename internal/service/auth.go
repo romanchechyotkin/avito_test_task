@@ -31,6 +31,8 @@ type AuthService struct {
 }
 
 func NewAuthService(log *slog.Logger, userRepo repo.User, signKey string, tokenTTL time.Duration) *AuthService {
+	log = log.With(slog.String("component", "auth service"))
+
 	return &AuthService{
 		log:      log,
 		signKey:  signKey,

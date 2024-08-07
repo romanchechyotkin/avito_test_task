@@ -20,6 +20,8 @@ type FlatService struct {
 }
 
 func NewFlatService(log *slog.Logger, sendService Sender, flatRepo repo.Flat) *FlatService {
+	log = log.With(slog.String("component", "flat service"))
+
 	return &FlatService{
 		log:         log,
 		sendService: sendService,
@@ -90,7 +92,7 @@ func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*
 	}
 
 	go func() {
-		s.sendService.Notify() <- flat.HouseID
+		s.sendService.Send() <- flat.HouseID
 	}()
 
 	s.log.Info("updated flat", slog.Any("id", flat.ID), slog.String("status", input.Status))

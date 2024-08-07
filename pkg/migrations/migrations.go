@@ -15,6 +15,8 @@ import (
 )
 
 func Migrate(log *slog.Logger, fs *embed.FS, cfg *config.Postgresql) {
+	log = log.With(slog.String("component", "migrations"))
+
 	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.User,
 		cfg.Password,
