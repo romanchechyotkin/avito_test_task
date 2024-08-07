@@ -1,0 +1,1 @@
+create index if not exists flats_moderation_status_index on flats (moderation_status);
