@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"log/slog"
+	"time"
 
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
@@ -98,6 +99,8 @@ func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*
 	}
 
 	s.log.Info("updated flat", slog.Any("id", flat.ID), slog.String("status", input.Status))
+
+	time.Sleep(4 * time.Second)
 
 	return flat, nil
 }
