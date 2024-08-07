@@ -4,13 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log/slog"
-	"time"
-
 	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo"
 	"github.com/romanchechyotkin/avito_test_task/internal/repo/repoerrors"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
+	"log/slog"
 )
 
 type FlatService struct {
@@ -92,15 +90,14 @@ func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*
 		return nil, err
 	}
 
-	if input.Status == "approved" {
+	if flat.ModerationStatus == "approved" {
+		s.log.Info("sending email to subscribers", slog.Any("house id", flat.HouseID))
 		go func() {
 			s.sendService.Send() <- flat.HouseID
 		}()
 	}
 
-	s.log.Info("updated flat", slog.Any("id", flat.ID), slog.String("status", input.Status))
-
-	time.Sleep(4 * time.Second)
+	s.log.Info("updated flat", slog.Any("id", flat.ID), slog.String("status", flat.ModerationStatus))
 
 	return flat, nil
 }
