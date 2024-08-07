@@ -1,8 +1,9 @@
 package response
 
 import (
-	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 	"time"
+
+	"github.com/romanchechyotkin/avito_test_task/internal/entity"
 )
 
 type HouseFlats struct {
@@ -10,14 +11,14 @@ type HouseFlats struct {
 }
 
 type Flat struct {
-	ID               uint      `json:"id"`
-	Number           uint      `json:"number"`
-	HouseID          uint      `json:"house_id"`
-	Price            uint      `json:"price"`
-	RoomsAmount      uint      `json:"rooms_amount"`
-	ModerationStatus string    `json:"moderation_status"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	ID               uint      `json:"id" example:"123"`
+	Number           uint      `json:"number" example:"1"`
+	HouseID          uint      `json:"house_id" example:"1"`
+	Price            uint      `json:"price" example:"123"`
+	RoomsAmount      uint      `json:"rooms_amount" example:"4"`
+	ModerationStatus string    `json:"moderation_status" example:"created"`
+	CreatedAt        time.Time `json:"created_at" example:"2024-08-09T00:00:00Z"`
+	UpdatedAt        time.Time `json:"updated_at" example:"2024-08-09T00:00:00Z"`
 }
 
 func BuildFlat(flat *entity.Flat) Flat {

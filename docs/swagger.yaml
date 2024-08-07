@@ -1,27 +1,16 @@
 definitions:
   github_com_romanchechyotkin_avito_test_task_internal_controller_v1_request.CreateFlat:
-    properties:
-      house_id:
-        type: integer
-      number:
-        type: integer
-      price:
-        type: integer
-      rooms_amount:
-        type: integer
-    required:
-    - house_id
-    - number
-    - price
-    - rooms_amount
     type: object
   github_com_romanchechyotkin_avito_test_task_internal_controller_v1_request.CreateHouse:
     properties:
       address:
+        example: ул. Новая, д. 1
         type: string
       developer:
+        example: ООО Компания
         type: string
       year:
+        example: 2022
         type: integer
     required:
     - address
@@ -30,8 +19,10 @@ definitions:
   github_com_romanchechyotkin_avito_test_task_internal_controller_v1_request.Login:
     properties:
       email:
+        example: test@gmail.com
         type: string
       password:
+        example: password
         maxLength: 50
         minLength: 4
         type: string
@@ -39,8 +30,10 @@ definitions:
   github_com_romanchechyotkin_avito_test_task_internal_controller_v1_request.Registration:
     properties:
       email:
+        example: test@gmail.com
         type: string
       password:
+        example: password
         maxLength: 50
         minLength: 4
         type: string
@@ -48,11 +41,13 @@ definitions:
         enum:
         - client
         - moderator
+        example: client
         type: string
     type: object
   github_com_romanchechyotkin_avito_test_task_internal_controller_v1_request.UpdateFlat:
     properties:
       id:
+        example: 123
         type: integer
       status:
         enum:
@@ -60,6 +55,7 @@ definitions:
         - approved
         - declined
         - on moderation
+        example: on moderation
         type: string
     required:
     - id
@@ -68,35 +64,49 @@ definitions:
   github_com_romanchechyotkin_avito_test_task_internal_controller_v1_response.Flat:
     properties:
       created_at:
+        example: "2024-08-09T00:00:00Z"
         type: string
       house_id:
+        example: 1
         type: integer
       id:
+        example: 123
         type: integer
       moderation_status:
+        example: created
         type: string
       number:
+        example: 1
         type: integer
       price:
+        example: 123
         type: integer
       rooms_amount:
+        example: 4
         type: integer
       updated_at:
+        example: "2024-08-09T00:00:00Z"
         type: string
     type: object
   github_com_romanchechyotkin_avito_test_task_internal_controller_v1_response.House:
     properties:
       address:
+        example: Улица Пушкина 1
         type: string
       created_at:
+        example: "2024-08-09T00:00:00Z"
         type: string
       developer:
+        example: ООО Компания
         type: string
       id:
+        example: 123
         type: integer
-      updated_ats:
+      updated_at:
+        example: "2024-08-09T00:00:00Z"
         type: string
       year:
+        example: 1999
         type: integer
     type: object
   github_com_romanchechyotkin_avito_test_task_internal_controller_v1_response.HouseFlats:
@@ -109,11 +119,13 @@ definitions:
   github_com_romanchechyotkin_avito_test_task_internal_controller_v1_response.Login:
     properties:
       token:
+        example: auth token
         type: string
     type: object
   github_com_romanchechyotkin_avito_test_task_internal_controller_v1_response.Registration:
     properties:
       user_id:
+        example: cae36e0f-69e5-4fa8-a179-a52d083c5549
         type: string
     type: object
   github_com_romanchechyotkin_avito_test_task_internal_entity.Flat:

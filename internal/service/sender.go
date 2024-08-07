@@ -79,17 +79,15 @@ func (s *SenderService) Run() {
 }
 
 func (s *SenderService) sendEmail(ctx context.Context, recipient string, message string) error {
-	// Имитация отправки сообщения
 	duration := time.Duration(rand.Int63n(3000)) * time.Millisecond
 	time.Sleep(duration)
 
-	// Имитация неуспешной отправки сообщения
 	errorProbability := 0.1
 	if rand.Float64() < errorProbability {
 		return errors.New("internal error")
 	}
 
-	s.log.Debug("send message", slog.String("message", message), slog.String("recipient", recipient))
+	s.log.Info("send message", slog.String("message", message), slog.String("recipient", recipient))
 
 	return nil
 }

@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -27,19 +26,13 @@ func Run() {
 	cfg, err := config.New(log)
 	if err != nil {
 		log.Error("failed to init config", logger.Error(err))
+		os.Exit(1)
 	}
 
 	log.Debug("app configuration", slog.Any("cfg", cfg))
 
 	log.Debug("migrations starting")
-	migrations.Migrate(log, &schema.DB, fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		cfg.Postgresql.User,
-		cfg.Postgresql.Password,
-		cfg.Postgresql.Host,
-		cfg.Postgresql.Port,
-		cfg.Postgresql.Database,
-		cfg.Postgresql.SSLMode,
-	))
+	migrations.Migrate(log, &schema.DB, &cfg.Postgresql)
 
 	log.Debug("postgresql starting")
 	postgres, err := postgresql.New(log, &cfg.Postgresql)

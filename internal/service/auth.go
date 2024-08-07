@@ -61,6 +61,8 @@ func (s *AuthService) CreateUser(ctx context.Context, input *AuthCreateUserInput
 		return "", err
 	}
 
+	s.log.Info("created new user", slog.String("email", input.Email), slog.String("user type", input.UserType))
+
 	return userID, nil
 }
 
