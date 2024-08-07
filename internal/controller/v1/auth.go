@@ -50,7 +50,6 @@ func (r *authRoutes) registration(c *gin.Context) {
 		return
 	}
 
-	// todo custom validator with russian responses
 	if err := validator.New().Struct(req); err != nil {
 		r.log.Error("failed to validate request data", logger.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -106,7 +105,6 @@ func (r *authRoutes) login(c *gin.Context) {
 		return
 	}
 
-	// todo custom validator with russian responses
 	if err := validator.New().Struct(req); err != nil {
 		r.log.Error("failed to validate request data", logger.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{

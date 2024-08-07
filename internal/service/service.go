@@ -87,7 +87,6 @@ type Services struct {
 	Sender Sender
 }
 
-// todo search for best way
 func NewServices(deps *Dependencies) *Services {
 	sender := NewSenderService(deps.Log, deps.Repos.House)
 

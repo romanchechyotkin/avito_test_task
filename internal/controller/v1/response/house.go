@@ -8,7 +8,6 @@ import (
 
 func BuildHouse(house *entity.House) House {
 	var developer string
-	var updatedAt time.Time
 
 	if house.Developer.Valid {
 		developer = house.Developer.String
@@ -20,15 +19,15 @@ func BuildHouse(house *entity.House) House {
 		Year:      house.Year,
 		Developer: developer,
 		CreatedAt: house.CreatedAt,
-		UpdatedAt: updatedAt,
+		UpdatedAt: house.UpdatedAt,
 	}
 }
 
 type House struct {
-	ID        uint      `json:"id"`
-	Address   string    `json:"address"`
-	Year      uint      `json:"year"`
-	Developer string    `json:"developer,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_ats"`
+	ID        uint      `json:"id" example:"123"`
+	Address   string    `json:"address" example:"Улица Пушкина 1"`
+	Year      uint      `json:"year" example:"1999"`
+	Developer string    `json:"developer,omitempty" example:"ООО Компания"`
+	CreatedAt time.Time `json:"created_at" example:"2024-08-09T00:00:00Z"`
+	UpdatedAt time.Time `json:"updated_at" example:"2024-08-09T00:00:00Z"`
 }

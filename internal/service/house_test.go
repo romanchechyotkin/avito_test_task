@@ -4,6 +4,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"testing"
@@ -73,6 +74,7 @@ func TestHouseService_GetHouseFlats(t *testing.T) {
 	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
 	defer utest.TeardownTable(log, pg, "houses")
+	defer utest.TeardownTable(log, pg, "flats")
 
 	repositories := repo.NewRepositories(log, pg)
 
@@ -126,4 +128,65 @@ func TestHouseService_GetHouseFlats(t *testing.T) {
 		require.Equal(t, ([]*entity.Flat)(nil), houseFlats)
 	})
 
+}
+
+func TestHouseService_CreateSubscription(t *testing.T) {
+	require.NoError(t, prepareErr)
+
+	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
+
+	defer utest.TeardownTable(log, pg, "houses")
+	defer utest.TeardownTable(log, pg, "users")
+
+	repositories := repo.NewRepositories(log, pg)
+
+	authService := NewAuthService(log, repositories.User, cfg.JWT.SignKey, cfg.JWT.TokenTTL)
+	houseService := NewHouseService(log, repositories.House, repositories.Flat)
+
+	userID, err := authService.CreateUser(context.Background(), &AuthCreateUserInput{
+		Email:    "test",
+		Password: "123456",
+		UserType: "client",
+	})
+	require.NoError(t, err)
+
+	house, err := houseService.CreateHouse(context.Background(), &HouseCreateInput{
+		Address: "Улица Пушкина 1",
+		Year:    1999,
+	})
+	require.NoError(t, err)
+
+	t.Run("successfully created subscription", func(t *testing.T) {
+		err = houseService.CreateSubscription(context.Background(), &CreateSubscriptionInput{
+			HouseID: fmt.Sprintf("%d", house.ID),
+			UserID:  userID,
+		})
+		require.NoError(t, err)
+	})
+
+	t.Run("failed subscription create; house not found", func(t *testing.T) {
+		err = houseService.CreateSubscription(context.Background(), &CreateSubscriptionInput{
+			HouseID: fmt.Sprintf("%d", house.ID+1),
+			UserID:  userID,
+		})
+		require.ErrorIs(t, err, ErrHouseNotFound)
+	})
+
+	t.Run("failed subscription create; subscription already exists", func(t *testing.T) {
+		err = houseService.CreateSubscription(context.Background(), &CreateSubscriptionInput{
+			HouseID: fmt.Sprintf("%d", house.ID),
+			UserID:  userID,
+		})
+		require.ErrorIs(t, err, ErrHouseSubscriptionExists)
+	})
+
+	t.Run("failed subscription create; invalid user id", func(t *testing.T) {
+		err = houseService.CreateSubscription(context.Background(), &CreateSubscriptionInput{
+			HouseID: fmt.Sprintf("%d", house.ID),
+			UserID:  "invalid-user-id", // not uuid
+		})
+		require.Equal(t, err, err)
+		require.False(t, errors.Is(err, ErrHouseNotFound))
+		require.False(t, errors.Is(err, ErrHouseSubscriptionExists))
+	})
 }

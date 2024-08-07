@@ -47,6 +47,8 @@ func (s *FlatService) CreateFlat(ctx context.Context, input *FlatCreateInput) (*
 		return nil, err
 	}
 
+	s.log.Info("created new flat", slog.Any("flat", flat))
+
 	return flat, nil
 }
 
@@ -90,6 +92,8 @@ func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*
 	go func() {
 		s.sendService.Notify() <- flat.HouseID
 	}()
+
+	s.log.Info("updated flat", slog.Any("id", flat.ID), slog.String("status", input.Status))
 
 	return flat, nil
 }

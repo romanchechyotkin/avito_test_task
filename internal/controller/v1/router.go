@@ -14,16 +14,14 @@ import (
 )
 
 func NewRouter(log *slog.Logger, router *gin.Engine, services *service.Services) {
-	router.Use(middleware.CORS())
 	router.Use(middleware.Log(log))
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	router.GET("/health", func(c *gin.Context) {
+		c.Status(http.StatusOK)
+	})
 
 	authMiddleware := middleware.NewAuthMiddleware(services.Auth)
-
-	router.GET("/status", func(c *gin.Context) {
-		c.String(http.StatusOK, "ok\n")
-	})
 
 	authGroup := router.Group("/auth")
 	{

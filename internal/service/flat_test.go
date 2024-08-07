@@ -20,6 +20,7 @@ func TestFlatService_CreateFlat(t *testing.T) {
 	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
 	defer utest.TeardownTable(log, pg, "houses")
+	defer utest.TeardownTable(log, pg, "flats")
 
 	repositories := repo.NewRepositories(log, pg)
 
@@ -122,6 +123,8 @@ func TestFlatService_UpdateFlat(t *testing.T) {
 	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
 	defer utest.TeardownTable(log, pg, "houses")
+	defer utest.TeardownTable(log, pg, "flats")
+	defer utest.TeardownTable(log, pg, "users")
 
 	repositories := repo.NewRepositories(log, pg)
 

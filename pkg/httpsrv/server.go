@@ -24,7 +24,7 @@ type Server struct {
 	base *http.Server
 }
 
-func New(log *slog.Logger, cfg *config.Config, router http.Handler) (*Server, error) {
+func New(log *slog.Logger, cfg *config.Config, router http.Handler) *Server {
 	srv := &Server{
 		log:    log,
 		cfg:    cfg,
@@ -39,7 +39,7 @@ func New(log *slog.Logger, cfg *config.Config, router http.Handler) (*Server, er
 
 	srv.start()
 
-	return srv, nil
+	return srv
 }
 
 func (srv *Server) start() {

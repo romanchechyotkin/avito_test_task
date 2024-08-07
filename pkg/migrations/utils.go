@@ -6,7 +6,7 @@ import (
 )
 
 func makeMigrateUrl(dbUrl string) string {
-	urlRe := regexp.MustCompile("^[^\\?]+")
+	urlRe := regexp.MustCompile(`^[^\\?]+`)
 	url := urlRe.FindString(dbUrl)
 
 	sslModeRe := regexp.MustCompile("(sslmode=)[a-zA-Z0-9]+")

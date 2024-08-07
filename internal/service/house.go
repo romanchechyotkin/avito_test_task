@@ -49,6 +49,8 @@ func (s *HouseService) CreateHouse(ctx context.Context, input *HouseCreateInput)
 		return nil, err
 	}
 
+	s.log.Info("created new house", slog.Any("house", house))
+
 	return house, nil
 }
 
@@ -78,6 +80,8 @@ func (s *HouseService) CreateSubscription(ctx context.Context, input *CreateSubs
 
 		return err
 	}
+
+	s.log.Info("created new subscription", slog.String("house id", input.HouseID), slog.String("user id", input.UserID))
 
 	return nil
 }

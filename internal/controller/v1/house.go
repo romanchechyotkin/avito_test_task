@@ -53,7 +53,6 @@ func (r *houseRoutes) createHouse(c *gin.Context) {
 		return
 	}
 
-	// todo custom validator with russian responses
 	if err := validator.New().Struct(req); err != nil {
 		r.log.Error("failed to validate request data", logger.Error(err))
 		c.JSON(http.StatusBadRequest, gin.H{

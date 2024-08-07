@@ -263,27 +263,7 @@
     },
     "definitions": {
         "github_com_romanchechyotkin_avito_test_task_internal_controller_v1_request.CreateFlat": {
-            "type": "object",
-            "required": [
-                "house_id",
-                "number",
-                "price",
-                "rooms_amount"
-            ],
-            "properties": {
-                "house_id": {
-                    "type": "integer"
-                },
-                "number": {
-                    "type": "integer"
-                },
-                "price": {
-                    "type": "integer"
-                },
-                "rooms_amount": {
-                    "type": "integer"
-                }
-            }
+            "type": "object"
         },
         "github_com_romanchechyotkin_avito_test_task_internal_controller_v1_request.CreateHouse": {
             "type": "object",
@@ -293,13 +273,16 @@
             ],
             "properties": {
                 "address": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ул. Новая, д. 1"
                 },
                 "developer": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ООО Компания"
                 },
                 "year": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 2022
                 }
             }
         },
@@ -307,12 +290,14 @@
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "test@gmail.com"
                 },
                 "password": {
                     "type": "string",
                     "maxLength": 50,
-                    "minLength": 4
+                    "minLength": 4,
+                    "example": "password"
                 }
             }
         },
@@ -320,19 +305,22 @@
             "type": "object",
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "test@gmail.com"
                 },
                 "password": {
                     "type": "string",
                     "maxLength": 50,
-                    "minLength": 4
+                    "minLength": 4,
+                    "example": "password"
                 },
                 "user_type": {
                     "type": "string",
                     "enum": [
                         "client",
                         "moderator"
-                    ]
+                    ],
+                    "example": "client"
                 }
             }
         },
@@ -344,7 +332,8 @@
             ],
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 123
                 },
                 "status": {
                     "type": "string",
@@ -353,7 +342,8 @@
                         "approved",
                         "declined",
                         "on moderation"
-                    ]
+                    ],
+                    "example": "on moderation"
                 }
             }
         },
@@ -361,28 +351,36 @@
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-08-09T00:00:00Z"
                 },
                 "house_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 123
                 },
                 "moderation_status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "created"
                 },
                 "number": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "price": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 123
                 },
                 "rooms_amount": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 4
                 },
                 "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-08-09T00:00:00Z"
                 }
             }
         },
@@ -390,22 +388,28 @@
             "type": "object",
             "properties": {
                 "address": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Улица Пушкина 1"
                 },
                 "created_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2024-08-09T00:00:00Z"
                 },
                 "developer": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ООО Компания"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 123
                 },
-                "updated_ats": {
-                    "type": "string"
+                "updated_at": {
+                    "type": "string",
+                    "example": "2024-08-09T00:00:00Z"
                 },
                 "year": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1999
                 }
             }
         },
@@ -424,7 +428,8 @@
             "type": "object",
             "properties": {
                 "token": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "auth token"
                 }
             }
         },
@@ -432,7 +437,8 @@
             "type": "object",
             "properties": {
                 "user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "cae36e0f-69e5-4fa8-a179-a52d083c5549"
                 }
             }
         },

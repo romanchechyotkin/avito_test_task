@@ -2,8 +2,11 @@ package migrations
 
 import (
 	"embed"
+	"fmt"
 	"log/slog"
+	"os"
 
+	"github.com/romanchechyotkin/avito_test_task/internal/config"
 	"github.com/romanchechyotkin/avito_test_task/pkg/logger"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -11,19 +14,26 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
-func Migrate(log *slog.Logger, fs *embed.FS, dbUrl string) error {
+func Migrate(log *slog.Logger, fs *embed.FS, cfg *config.Postgresql) {
+	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		cfg.User,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Database,
+		cfg.SSLMode,
+	)
+
 	source, err := iofs.New(fs, "migrations")
 	if err != nil {
 		log.Error("failed to read migrations source", logger.Error(err))
-
-		return err
+		return
 	}
 
 	instance, err := migrate.NewWithSourceInstance("iofs", source, makeMigrateUrl(dbUrl))
 	if err != nil {
 		log.Error("failed to initialization the migrations instance", logger.Error(err))
-
-		return err
+		return
 	}
 
 	err = instance.Up()
@@ -35,7 +45,6 @@ func Migrate(log *slog.Logger, fs *embed.FS, dbUrl string) error {
 		log.Debug("the migration schema not changed")
 	default:
 		log.Error("could not apply the migration schema", logger.Error(err))
+		os.Exit(1)
 	}
-
-	return err
 }

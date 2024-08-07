@@ -25,18 +25,7 @@ func Prepare() (*slog.Logger, *config.Config, *postgresql.Postgres, error) {
 		return nil, nil, nil, err
 	}
 
-	err = migrations.Migrate(log, &schema.DB, fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
-		cfg.Postgresql.User,
-		cfg.Postgresql.Password,
-		cfg.Postgresql.Host,
-		cfg.Postgresql.Port,
-		cfg.Postgresql.Database,
-		cfg.Postgresql.SSLMode,
-	))
-	if err != nil {
-		return nil, nil, nil, err
-
-	}
+	migrations.Migrate(log, &schema.DB, &cfg.Postgresql)
 
 	return log, cfg, pg, nil
 }
