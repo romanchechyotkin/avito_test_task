@@ -74,6 +74,7 @@ func TestHouseService_GetHouseFlats(t *testing.T) {
 	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
 	defer utest.TeardownTable(log, pg, "houses")
+	defer utest.TeardownTable(log, pg, "flats")
 
 	repositories := repo.NewRepositories(log, pg)
 
@@ -135,6 +136,7 @@ func TestHouseService_CreateSubscription(t *testing.T) {
 	log.Debug("test configuration", slog.Any("cfg", cfg.Postgresql))
 
 	defer utest.TeardownTable(log, pg, "houses")
+	defer utest.TeardownTable(log, pg, "users")
 
 	repositories := repo.NewRepositories(log, pg)
 
