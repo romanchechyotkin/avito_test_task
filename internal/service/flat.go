@@ -91,9 +91,11 @@ func (s *FlatService) UpdateFlat(ctx context.Context, input *FlatUpdateInput) (*
 		return nil, err
 	}
 
-	go func() {
-		s.sendService.Send() <- flat.HouseID
-	}()
+	if input.Status == "approved" {
+		go func() {
+			s.sendService.Send() <- flat.HouseID
+		}()
+	}
 
 	s.log.Info("updated flat", slog.Any("id", flat.ID), slog.String("status", input.Status))
 
