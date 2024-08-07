@@ -43,7 +43,7 @@ func New(log *slog.Logger) (*Config, error) {
 
 	if _, err := os.Stat(path); err != nil {
 		log.Error("failed to open config file", logger.Error(err))
-		os.Exit(1)
+		return nil, err
 	}
 
 	var cfg Config
@@ -52,6 +52,8 @@ func New(log *slog.Logger) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Debug("app configuration", slog.Any("cfg", cfg))
 
 	return &cfg, nil
 }

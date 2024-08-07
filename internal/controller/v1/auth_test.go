@@ -69,7 +69,7 @@ func TestAuthRoutes_Registration(t *testing.T) {
 				UserType: "moderator",
 			},
 			mockBehavior: func(m *mocks.MockAuth, args args) {
-				m.EXPECT().CreateUser(gomock.Any(), args.input).Return("", nil).Times(0) // todo return error
+				m.EXPECT().CreateUser(gomock.Any(), args.input).Return("", nil).Times(0)
 			},
 			wantStatusCode: http.StatusBadRequest,
 		},
@@ -211,7 +211,7 @@ func TestAuthRoutes_Registration(t *testing.T) {
 				UserType: "operator",
 			},
 			mockBehavior: func(m *mocks.MockAuth, args args) {
-				m.EXPECT().CreateUser(gomock.Any(), args.input).Return("", nil).Times(0) // todo return error
+				m.EXPECT().CreateUser(gomock.Any(), args.input).Return("", nil).Times(0)
 			},
 			wantStatusCode: http.StatusBadRequest,
 		},

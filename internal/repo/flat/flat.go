@@ -143,7 +143,6 @@ func (r *Repo) UpdateStatus(ctx context.Context, flat *entity.Flat, moderatorID 
 	return flat, nil
 }
 
-// todo use lib for binding values
 func (r *Repo) GetHouseFlats(ctx context.Context, houseID, userType string) ([]*entity.Flat, error) {
 	q := `SELECT id, number, house_id, price, rooms_amount, moderation_status, created_at, updated_at FROM flats WHERE house_id = $1 `
 

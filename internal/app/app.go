@@ -29,15 +29,13 @@ func Run() {
 		os.Exit(1)
 	}
 
-	log.Debug("app configuration", slog.Any("cfg", cfg))
-
 	log.Debug("migrations starting")
 	migrations.Migrate(log, &schema.DB, &cfg.Postgresql)
 
 	log.Debug("postgresql starting")
 	postgres, err := postgresql.New(log, &cfg.Postgresql)
 	if err != nil {
-		log.Error("failed to init postgtresql", logger.Error(err))
+		log.Error("failed to init postgresql", logger.Error(err))
 		os.Exit(1)
 	}
 
@@ -52,25 +50,21 @@ func Run() {
 		TokenTTL: cfg.JWT.TokenTTL,
 	})
 
-	if env := os.Getenv("APP_ENV"); env == "prod" {
-		gin.SetMode(gin.ReleaseMode)
-	}
-	router := gin.Default()
-	v1.NewRouter(log, router, services)
+	r := router()
+	v1.NewRouter(log, r, services)
 
 	log.Debug("server starting")
-	server := httpsrv.New(log, cfg, router)
+	server := httpsrv.New(log, cfg, r)
 
-	// Waiting signal
-	log.Info("Configuring graceful shutdown...")
+	log.Info("configuring graceful shutdown")
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
 	select {
 	case s := <-interrupt:
-		log.Info("app - Run - signal: " + s.String())
+		log.Info("application got signal", slog.String("signal", s.String()))
 	case err = <-server.Notify():
-		log.Error("app - Run - httpServer.Notify", logger.Error(err))
+		log.Error("http server error", logger.Error(err))
 	}
 
 	services.Sender.(*service.SenderService).Notify() <- struct{}{}
@@ -80,4 +74,12 @@ func Run() {
 	}
 
 	postgres.Close()
+}
+
+func router() *gin.Engine {
+	if env := os.Getenv("APP_ENV"); env == "prod" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	return gin.Default()
 }

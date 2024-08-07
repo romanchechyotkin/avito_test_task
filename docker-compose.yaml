@@ -1,5 +1,3 @@
-# todo add redis for storing jwt
-
 services:
 
   postgres:
