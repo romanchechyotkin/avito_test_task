@@ -59,7 +59,7 @@ func Run() {
 	v1.NewRouter(log, router, services)
 
 	log.Debug("server starting")
-	server, err := httpsrv.New(log, cfg, router)
+	server := httpsrv.New(log, cfg, router)
 
 	// Waiting signal
 	log.Info("Configuring graceful shutdown...")
